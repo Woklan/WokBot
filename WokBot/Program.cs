@@ -2,8 +2,10 @@
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Newtonsoft.Json;
+using WokBot.Classes;
 using WokBot.Interfaces;
 
 namespace WokBot
@@ -12,13 +14,21 @@ namespace WokBot
     {
         public static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         private DiscordSocketClient _client;
-        public async Task MainAsync() {
+        private static CommandHandler commandHandler;
+        public static CommandService Commands;
+        public static ResourcesInterface resourcesInterface;
+        public async Task MainAsync()
+        {
             var _config = new DiscordSocketConfig { MessageCacheSize = 100 };
             _client = new DiscordSocketClient(_config);
 
-            ResourcesInterface result = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"C:\Users\Wokla\source\repos\WokBot\WokBot\resources.json").Replace('\"', ' '));
+            Commands = new CommandService();
+            commandHandler = new CommandHandler(_client, Commands);
 
-            await _client.LoginAsync(Discord.TokenType.Bot, result.discord);
+            resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"C:\Users\Wokla\source\repos\WokBot\WokBot\resources.json").Replace('\"', ' '));
+
+            await _client.LoginAsync(TokenType.Bot, resourcesInterface.discord);
+            await commandHandler.InstallCommandsAsync();
             await _client.StartAsync();
 
             _client.MessageUpdated += MessageUpdated;
@@ -30,7 +40,6 @@ namespace WokBot
 
             await Task.Delay(-1);
         }
-
         private async Task MessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
         {
             var message = await before.GetOrDownloadAsync();

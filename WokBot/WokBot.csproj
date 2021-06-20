@@ -10,4 +10,6 @@
     <PackageReference Include="Json.Net" Version="1.0.33" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+
 </Project>
