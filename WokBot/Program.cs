@@ -1,12 +1,21 @@
-﻿using System;
+﻿using System.Threading.Tasks;
+using Discord.WebSocket;
 
 namespace WokBot
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
+        public static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
+        private DiscordSocketClient _client;
+        public async Task MainAsync() {
+            _client = new DiscordSocketClient();
+
+            var token = "";
+
+            await _client.LoginAsync(Discord.TokenType.Bot, token);
+            await _client.StartAsync();
+
+            await Task.Delay(-1);
         }
     }
 }
