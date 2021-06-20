@@ -1,5 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 using Discord.WebSocket;
+using Newtonsoft.Json;
+using WokBot.Interfaces;
 
 namespace WokBot
 {
@@ -10,9 +14,11 @@ namespace WokBot
         public async Task MainAsync() {
             _client = new DiscordSocketClient();
 
-            var token = "";
+            ResourcesInterface result = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"C:\Users\Wokla\source\repos\WokBot\WokBot\resources.json").Replace('\"', ' '));
 
-            await _client.LoginAsync(Discord.TokenType.Bot, token);
+            Console.WriteLine("LOGIN");
+
+            await _client.LoginAsync(Discord.TokenType.Bot, result.discord);
             await _client.StartAsync();
 
             await Task.Delay(-1);
