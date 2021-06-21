@@ -1,8 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using Newtonsoft.Json;
-using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using WokBot.Interfaces;
 
@@ -20,17 +17,7 @@ namespace WokBot.Commands
 
             string html = string.Empty;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.AutomaticDecompression = DecompressionMethods.GZip;
-
-            using(HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using(Stream stream = response.GetResponseStream())
-            using(StreamReader reader = new StreamReader(stream))
-            {
-                html = reader.ReadToEnd();
-            }
-
-            Virus_total result = JsonConvert.DeserializeObject<Virus_total>(html);
+            Virus_total result = Program.utility.ApiCall<Virus_total>(url);
 
             // Checks against Kaspersky, Sophos & Google Safe Browsing
             // If it fails any, it will let the user know

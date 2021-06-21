@@ -17,6 +17,7 @@ namespace WokBot
         private static CommandHandler commandHandler;
         public static CommandService Commands;
         public static ResourcesInterface resourcesInterface;
+        public static Utility utility;
         public async Task MainAsync()
         {
             var _config = new DiscordSocketConfig { MessageCacheSize = 100 };
@@ -25,7 +26,10 @@ namespace WokBot
             Commands = new CommandService();
             commandHandler = new CommandHandler(_client, Commands);
 
+            utility = new Utility();
+
             resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"C:\Users\Wokla\source\repos\WokBot\WokBot\resources.json").Replace('\"', ' '));
+            
 
             await _client.LoginAsync(TokenType.Bot, resourcesInterface.discord);
             await commandHandler.InstallCommandsAsync();
