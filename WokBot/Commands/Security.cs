@@ -17,7 +17,8 @@ namespace WokBot.Commands
 
             string html = string.Empty;
 
-            Virus_total result = Program.utility.ApiCall<Virus_total>(url);
+            //Virus_total result = Program.utility.ApiCall<Virus_total>(url);
+            Virus_total result = await Program.utility.ApiCall<Virus_total>(url);
 
             // Checks against Kaspersky, Sophos & Google Safe Browsing
             // If it fails any, it will let the user know
