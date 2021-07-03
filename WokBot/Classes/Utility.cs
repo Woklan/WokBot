@@ -1,27 +1,30 @@
 ﻿using Newtonsoft.Json;
-using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace WokBot.Classes
 {
     public class Utility
     {
         HttpWebRequest request;
+        static readonly HttpClient client = new HttpClient();
 
-        public T ApiCall<T>(string url)
+        public Utility()
         {
-            string html = string.Empty;
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+        }
 
-            request = (HttpWebRequest)WebRequest.Create(url);
+        public async Task<T> ApiCall<T>(string url)
+        {
+            // Get Request to Website
+            var data = await client.GetAsync(url);
+            
+            // Parses content into string
+            string parse = await data.Content.ReadAsStringAsync();
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                html = reader.ReadToEnd();
-            }
-
-            return JsonConvert.DeserializeObject<T>(html);
+            // Returns object created from JSON
+            return JsonConvert.DeserializeObject<T>(parse);          
         }
     }
 }
