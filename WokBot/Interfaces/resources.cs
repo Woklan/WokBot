@@ -10,5 +10,9 @@ namespace WokBot.Interfaces
         public string virus_total { get; set; }
         [JsonProperty("youtube")]
         public string youtube { get; set; }
+        [JsonProperty("video_executable")]
+        public string video_executable { get; set; }
+        [JsonProperty("video_output")]
+        public string video_output { get; set; }
     }
 }
