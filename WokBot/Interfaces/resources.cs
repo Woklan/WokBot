@@ -14,5 +14,7 @@ namespace WokBot.Interfaces
         public string video_executable { get; set; }
         [JsonProperty("video_output")]
         public string video_output { get; set; }
+        [JsonProperty("ffmpeg_executable")]
+        public string ffmpeg_executable { get; set; }
     }
 }
