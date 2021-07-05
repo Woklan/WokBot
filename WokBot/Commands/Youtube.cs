@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Audio;
 using Discord.Commands;
+using Discord.WebSocket;
 using FFmpeg.NET;
 using NYoutubeDL;
 using System;
@@ -31,49 +32,31 @@ namespace WokBot.Commands
             return output;
         }
 
-        private Process CreateStream(string path)
-        {
-            return Process.Start(new ProcessStartInfo
-            {
-                FileName = Program.resourcesInterface.ffmpeg_executable,
-                Arguments = $"-hide_banner -loglevel panic -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-            });
-        }
-
         [Command("youtube", RunMode = RunMode.Async)]
         public async Task SayAsync()
         {
             try
             {
-                const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz_";
-                string random_combination = new string(Enumerable.Repeat(chars, 5).Select(s => s[random.Next(s.Length)]).ToArray());
+                youtubeInterface data;
+                do
+                {
+                    string random_combination = Program.utility.GenerateRandomString(5);
 
-                string url = "https://www.googleapis.com/youtube/v3/search?key=" + Program.resourcesInterface.youtube + "&maxResults=1&part=snippet&type=video&q=" + random_combination;
+                    string url = "https://www.googleapis.com/youtube/v3/search?key=" + Program.resourcesInterface.youtube + "&maxResults=1&part=snippet&type=video&q=" + random_combination;
 
-                youtubeInterface data = await Program.utility.ApiCall<youtubeInterface>(url);
+                    data = await Program.utility.ApiCall<youtubeInterface>(url);
 
-                Console.WriteLine("ApiCall Success");
+                    if(data.Items.Count == 0)
+                    {
+                        Console.WriteLine("WARNING: Generated String couldn't get a Video.");
+                    }
+                } while (data.Items.Count == 0);
+                
+                Console.WriteLine("SUCCESS: Found a Youtube Video");
 
                 string video_id = data.Items[0].Id.VideoId;
 
-                var youtubeDL = new YoutubeDL();
-
-                youtubeDL.Options.FilesystemOptions.Output = Program.resourcesInterface.video_output + "video.mp3";
-                youtubeDL.Options.PostProcessingOptions.ExtractAudio = true;
-                youtubeDL.VideoUrl = "https://www.youtube.com/watch?v=" + video_id;
-
-                youtubeDL.Options.PostProcessingOptions.AudioFormat = NYoutubeDL.Helpers.Enums.AudioFormat.mp3;
-
-                // POGPGOGOGOGOEGPOGPGPOOPEGPPGOOGOG
-
-                youtubeDL.YoutubeDlPath = Program.resourcesInterface.video_executable;
-
-                youtubeDL.StandardOutputEvent += (sender, output) => Console.WriteLine(output);
-                youtubeDL.StandardErrorEvent += (sender, errorOutput) => Console.WriteLine(errorOutput);
-
-                await youtubeDL.DownloadAsync();
+                await Program.utility.YoutubeDownload(video_id);
 
                 Console.WriteLine("Youtube Success");
 
@@ -83,25 +66,24 @@ namespace WokBot.Commands
 
                 channel = channel ?? (Context.User as IGuildUser)?.VoiceChannel;
 
-                if(channel == null)
+                if (channel == null)
                 {
                     return;
                 }
 
-                var audioClient = await channel.ConnectAsync();
+                await Program.utility.PlayAudio(channel);
 
-                using (var ffmpeg = CreateStream(Program.resourcesInterface.video_output + "video2.mp3"))
-                using (var output = ffmpeg.StandardOutput.BaseStream)
-                using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
+                if(File.Exists(Program.resourcesInterface.video_output + "video.mp3"))
                 {
-                    try { await output.CopyToAsync(discord); }
-                    finally { await discord.FlushAsync();  }
+                    File.Delete(Program.resourcesInterface.video_output + "video.mp3");
                 }
 
-                File.Delete(Program.resourcesInterface.video_output + "video.mp3");
-                File.Delete(Program.resourcesInterface.video_output + "video2.mp3");
+                if(File.Exists(Program.resourcesInterface.video_output + "video.mp3"))
+                {
+                    File.Delete(Program.resourcesInterface.video_output + "video2.mp3");
+                }
 
-
+                await Context.Channel.SendMessageAsync("https://www.youtube.com/watch?v=" + video_id);
 
                 Console.WriteLine("BIG SUCCESSS");
             }catch(Exception e)
