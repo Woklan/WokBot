@@ -18,6 +18,7 @@ namespace WokBot
         public static CommandService Commands;
         public static ResourcesInterface resourcesInterface;
         public static Utility utility;
+        public static ulong bot_id = 466905552648142848;
         public async Task MainAsync()
         {
             var _config = new DiscordSocketConfig { MessageCacheSize = 100 };
@@ -26,10 +27,9 @@ namespace WokBot
             Commands = new CommandService();
             commandHandler = new CommandHandler(_client, Commands);
 
-            utility = new Utility();
-
             resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"C:\Users\Wokla\source\repos\WokBot\WokBot\resources.json").Replace('\"', ' '));
-            
+
+            utility = new Utility();
 
             await _client.LoginAsync(TokenType.Bot, resourcesInterface.discord);
             await commandHandler.InstallCommandsAsync();
@@ -41,6 +41,8 @@ namespace WokBot
                 Console.WriteLine("Bot is connected!");
                 return Task.CompletedTask;
             };
+
+            await _client.SetGameAsync("Gaming", "https://twitch.tv/minemanluke", ActivityType.Streaming);
 
             await Task.Delay(-1);
         }

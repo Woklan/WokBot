@@ -8,5 +8,13 @@ namespace WokBot.Interfaces
         public string discord { get; set; }
         [JsonProperty("virus_total")]
         public string virus_total { get; set; }
+        [JsonProperty("youtube")]
+        public string youtube { get; set; }
+        [JsonProperty("video_executable")]
+        public string video_executable { get; set; }
+        [JsonProperty("video_output")]
+        public string video_output { get; set; }
+        [JsonProperty("ffmpeg_executable")]
+        public string ffmpeg_executable { get; set; }
     }
 }
