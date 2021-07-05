@@ -15,19 +15,19 @@ namespace WokBot.Classes
     {
         static readonly HttpClient client = new HttpClient();
         private static Random _random = new Random();
-        private YoutubeDL youtubeDL = new YoutubeDL();
+        private YoutubeDL _youtubeDL = new YoutubeDL();
         private List<ulong> _currentVoiceChat = new List<ulong>();
 
         public Utility()
         {
             client.DefaultRequestHeaders.Add("Accept", "application/json");
 
-            youtubeDL.Options.FilesystemOptions.Output = Program.resourcesInterface.video_output + "video.mp3";
-            youtubeDL.Options.PostProcessingOptions.ExtractAudio = true;
-            youtubeDL.Options.PostProcessingOptions.AudioFormat = NYoutubeDL.Helpers.Enums.AudioFormat.mp3;
-            youtubeDL.YoutubeDlPath = Program.resourcesInterface.video_executable;
-            youtubeDL.StandardOutputEvent += (sender, output) => Console.WriteLine(output);
-            youtubeDL.StandardErrorEvent += (sender, errorOutput) => Console.WriteLine(errorOutput);
+            _youtubeDL.Options.FilesystemOptions.Output = Program.resourcesInterface.video_output + "video.mp3";
+            _youtubeDL.Options.PostProcessingOptions.ExtractAudio = true;
+            _youtubeDL.Options.PostProcessingOptions.AudioFormat = NYoutubeDL.Helpers.Enums.AudioFormat.mp3;
+            _youtubeDL.YoutubeDlPath = Program.resourcesInterface.video_executable;
+            _youtubeDL.StandardOutputEvent += (sender, output) => Console.WriteLine(output);
+            _youtubeDL.StandardErrorEvent += (sender, errorOutput) => Console.WriteLine(errorOutput);
         }
 
         public async Task<T> ApiCall<T>(string url)
@@ -50,10 +50,11 @@ namespace WokBot.Classes
 
         public async Task YoutubeDownload(string video_id)
         {
-            youtubeDL.VideoUrl = "https://www.youtube.com/watch?v=" + video_id;
-            await youtubeDL.DownloadAsync();
+            _youtubeDL.VideoUrl = "https://www.youtube.com/watch?v=" + video_id;
+            await _youtubeDL.DownloadAsync();
         }
 
+        // Creates a new Process dedicated for FFMPEG (Voice Chat)
         public Process CreateStream(string path)
         {
             return Process.Start(new ProcessStartInfo
@@ -67,9 +68,11 @@ namespace WokBot.Classes
 
         public async Task PlayAudio(IVoiceChannel channel)
         {
+            // Bot joins the voice channel
             var audioClient = await channel.ConnectAsync();
             Console.WriteLine("ALERT: Connected to voice!");
 
+            // Bots plays the video in the voice channel
             using (var ffmpeg = Program.utility.CreateStream(Program.resourcesInterface.video_output + "video2.mp3"))
             using (var output = ffmpeg.StandardOutput.BaseStream)
             using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
@@ -78,6 +81,7 @@ namespace WokBot.Classes
                 finally { await discord.FlushAsync(); }
             }
 
+            // Bot Disconnects from Voice
             await channel.DisconnectAsync();
             await removeCurrentVoice(channel);
             Console.WriteLine("ALERT: Disconnected to voice!");
