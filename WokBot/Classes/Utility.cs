@@ -3,6 +3,7 @@ using Discord.Audio;
 using Newtonsoft.Json;
 using NYoutubeDL;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -15,6 +16,7 @@ namespace WokBot.Classes
         static readonly HttpClient client = new HttpClient();
         private static Random _random = new Random();
         private YoutubeDL youtubeDL = new YoutubeDL();
+        private List<ulong> _currentVoiceChat = new List<ulong>();
 
         public Utility()
         {
@@ -77,7 +79,54 @@ namespace WokBot.Classes
             }
 
             await channel.DisconnectAsync();
+            await removeCurrentVoice(channel);
             Console.WriteLine("ALERT: Disconnected to voice!");
+        }
+
+        public async Task<bool> CheckBotInVoiceChat(IVoiceChannel channel)
+        {
+            // Grabs iterator for Async User List
+            IAsyncEnumerator<IReadOnlyCollection<IGuildUser>> async_iterator = channel.GetUsersAsync().GetAsyncEnumerator();
+
+            // Moves iterator
+            await async_iterator.MoveNextAsync();
+
+            // Grabs iterator for User List
+            IEnumerator<IGuildUser> iterator = async_iterator.Current.GetEnumerator();
+
+            // Moves iterator
+            iterator.MoveNext();
+
+            // Loops through User in List
+            while (iterator.Current.Id.CompareTo(Program.bot_id) != 0 && iterator.MoveNext()) { };
+
+            bool in_voice_chat = !iterator.MoveNext();
+            bool joining_voice_chat = false;
+
+            // Checks if bot is in process of joining
+            for(int i = 0; i < _currentVoiceChat.Count; i++)
+            {
+                if(channel.Id == _currentVoiceChat.ElementAt(i))
+                {
+                    joining_voice_chat = true;
+                }
+            }
+
+            // Checks if bot was already in or in the process of joining
+            if (in_voice_chat && !joining_voice_chat)
+            {
+                _currentVoiceChat.Add(channel.Id);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public async Task removeCurrentVoice(IVoiceChannel channel)
+        {
+            _currentVoiceChat.Remove(channel.Id);
         }
     }
 }

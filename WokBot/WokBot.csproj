@@ -16,6 +16,6 @@
     <Folder Include="Resources\" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties resources_1json__JsonSchema="https://json.schemastore.org/global.json" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

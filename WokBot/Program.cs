@@ -18,6 +18,7 @@ namespace WokBot
         public static CommandService Commands;
         public static ResourcesInterface resourcesInterface;
         public static Utility utility;
+        public static ulong bot_id = 466905552648142848;
         public async Task MainAsync()
         {
             var _config = new DiscordSocketConfig { MessageCacheSize = 100 };
@@ -40,6 +41,8 @@ namespace WokBot
                 Console.WriteLine("Bot is connected!");
                 return Task.CompletedTask;
             };
+
+            await _client.SetGameAsync("Gaming", "https://twitch.tv/minemanluke", ActivityType.Streaming);
 
             await Task.Delay(-1);
         }

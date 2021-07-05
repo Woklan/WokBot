@@ -37,7 +37,23 @@ namespace WokBot.Commands
         {
             try
             {
+                IVoiceChannel channel = null;
+
+                channel = channel ?? (Context.User as IGuildUser)?.VoiceChannel;
+
+                if (channel == null)
+                {
+                    return;
+                }
+
+                if (await Program.utility.CheckBotInVoiceChat(channel))
+                {
+                    Console.WriteLine("ALERT: Bot was already in channel");
+                    return;
+                }
+
                 youtubeInterface data;
+
                 do
                 {
                     string random_combination = Program.utility.GenerateRandomString(5);
@@ -61,15 +77,6 @@ namespace WokBot.Commands
                 Console.WriteLine("Youtube Success");
 
                 await ModifyVideo();
-
-                IVoiceChannel channel = null;
-
-                channel = channel ?? (Context.User as IGuildUser)?.VoiceChannel;
-
-                if (channel == null)
-                {
-                    return;
-                }
 
                 await Program.utility.PlayAudio(channel);
 
