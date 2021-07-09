@@ -29,7 +29,7 @@ namespace WokBot
 
             
 
-            if (System.Environment.GetEnvironmentVariable("Docker") == null)
+            if (System.Environment.GetEnvironmentVariable("docker") == null)
             {
                 resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"../../../resources.json").Replace('\"', ' '));
             }
