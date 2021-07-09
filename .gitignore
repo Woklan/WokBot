@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /WokBot/resources.json
 /WokBot/Resources
+/WokBot/settings.env
