@@ -27,11 +27,16 @@ namespace WokBot
             Commands = new CommandService();
             commandHandler = new CommandHandler(_client, Commands);
 
-            resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"C:\Users\Wokla\source\repos\WokBot\WokBot\resources.json").Replace('\"', ' '));
+            string json = JsonConvert.SerializeObject(System.Environment.GetEnvironmentVariables());
+            resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(json);
+
+            //resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"resources.json").Replace('\"', ' '));
+            //resourcesInterface = System.Environment.GetEnvironmentVariables("");
 
             utility = new Utility();
 
-            await _client.LoginAsync(TokenType.Bot, resourcesInterface.discord);
+            Console.WriteLine(Environment.GetEnvironmentVariable("discord"));
+            await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("discord"));
             await commandHandler.InstallCommandsAsync();
             await _client.StartAsync();
 
