@@ -27,16 +27,21 @@ namespace WokBot
             Commands = new CommandService();
             commandHandler = new CommandHandler(_client, Commands);
 
-            string json = JsonConvert.SerializeObject(System.Environment.GetEnvironmentVariables());
-            resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(json);
+            
 
-            //resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"resources.json").Replace('\"', ' '));
-            //resourcesInterface = System.Environment.GetEnvironmentVariables("");
+            if (System.Environment.GetEnvironmentVariable("Docker") == null)
+            {
+                resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"../../../resources.json").Replace('\"', ' '));
+            }
+            else
+            {
+                string json = JsonConvert.SerializeObject(System.Environment.GetEnvironmentVariables());
+                resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(json);
+            }
 
             utility = new Utility();
 
-            Console.WriteLine(Environment.GetEnvironmentVariable("discord"));
-            await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("discord"));
+            await _client.LoginAsync(TokenType.Bot, resourcesInterface.discord);
             await commandHandler.InstallCommandsAsync();
             await _client.StartAsync();
 
