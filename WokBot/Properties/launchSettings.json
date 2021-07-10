@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WokBot": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

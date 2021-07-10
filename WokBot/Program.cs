@@ -27,7 +27,17 @@ namespace WokBot
             Commands = new CommandService();
             commandHandler = new CommandHandler(_client, Commands);
 
-            resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"C:\Users\Wokla\source\repos\WokBot\WokBot\resources.json").Replace('\"', ' '));
+            
+
+            if (System.Environment.GetEnvironmentVariable("docker") == null)
+            {
+                resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"../../../resources.json").Replace('\"', ' '));
+            }
+            else
+            {
+                string json = JsonConvert.SerializeObject(System.Environment.GetEnvironmentVariables());
+                resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(json);
+            }
 
             utility = new Utility();
 

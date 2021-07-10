@@ -42,6 +42,7 @@ namespace WokBot.Classes
             return JsonConvert.DeserializeObject<T>(parse);          
         }
 
+        // Generates a random string
         public string GenerateRandomString(int num)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz_";
