@@ -72,11 +72,11 @@ namespace WokBot.Commands
 
                 string video_id = data.Items[0].Id.VideoId;
 
-                await Program.utility.YoutubeDownload(video_id);
+                await Program.utility.YoutubeDownloadID(video_id);
 
                 Console.WriteLine("Youtube Success");
 
-                await ModifyVideo();
+                await Program.utility.CutVideo("video.mp3", "video2.mp3", 0, 5);
 
                 await Program.utility.PlayAudio(channel);
 
