@@ -1,10 +1,13 @@
 ﻿using Discord;
 using Discord.Audio;
+using FFmpeg.NET;
 using Newtonsoft.Json;
 using NYoutubeDL;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -26,6 +29,11 @@ namespace WokBot.Classes
             _youtubeDL.Options.PostProcessingOptions.ExtractAudio = true;
             _youtubeDL.Options.PostProcessingOptions.AudioFormat = NYoutubeDL.Helpers.Enums.AudioFormat.mp3;
             _youtubeDL.YoutubeDlPath = Program.resourcesInterface.video_executable;
+            Console.WriteLine(Program.resourcesInterface.video_executable);
+            if (File.Exists("youtube-dl"))
+            {
+                Console.WriteLine("IT EXISTS");
+            }
             _youtubeDL.StandardOutputEvent += (sender, output) => Console.WriteLine(output);
             _youtubeDL.StandardErrorEvent += (sender, errorOutput) => Console.WriteLine(errorOutput);
         }
@@ -49,9 +57,17 @@ namespace WokBot.Classes
             return new string(Enumerable.Repeat(chars, num).Select(s => s[_random.Next(s.Length)]).ToArray());
         }
 
-        public async Task YoutubeDownload(string video_id)
+        public async Task YoutubeDownloadID(string video_id, string file_name = "video.mp3")
         {
+            _youtubeDL.Options.FilesystemOptions.Output = Program.resourcesInterface.video_output + file_name;
             _youtubeDL.VideoUrl = "https://www.youtube.com/watch?v=" + video_id;
+            await _youtubeDL.DownloadAsync();
+        }
+
+        public async Task YoutubeDownloadLink(string video_link, string file_name = "video.mp3")
+        {
+            _youtubeDL.Options.FilesystemOptions.Output = Program.resourcesInterface.video_output + file_name;
+            _youtubeDL.VideoUrl = video_link;
             await _youtubeDL.DownloadAsync();
         }
 
@@ -133,5 +149,75 @@ namespace WokBot.Classes
         {
             _currentVoiceChat.Remove(channel.Id);
         }
+
+        public async Task<MediaFile> CutVideo(string input_file, string output_file, int cut_begin, int cut_end)
+        {
+            var input = new InputFile(Program.resourcesInterface.video_output + input_file);
+            var output = new OutputFile(Program.resourcesInterface.video_output + output_file);
+            var ffmpeg = new Engine(Program.resourcesInterface.ffmpeg_executable);
+
+            var options = new ConversionOptions();
+
+            options.CutMedia(TimeSpan.FromSeconds(cut_begin), TimeSpan.FromSeconds(cut_end));
+            var ffmpeg_output = await ffmpeg.ConvertAsync(input, output, options);
+            return ffmpeg_output;
+        }
+
+        public async Task<T> UploadAsync<T>(string url, string filename, Stream file, List<(string, string)> param)
+        {
+            HttpContent fileContent = new StreamContent(file);
+
+            var formData = new MultipartFormDataContent();
+
+            for(int i = 0; i < param.Count; i++)
+            {
+                HttpContent stringContent = new StringContent(param.ElementAt(i).Item2);
+                Console.WriteLine(stringContent.ReadAsStringAsync() + " | " + param.ElementAt(i).Item1 + " | " + param.ElementAt(i).Item2);
+                formData.Add(stringContent, param.ElementAt(i).Item1);
+                
+            }
+
+            formData.Add(fileContent, "file", filename);
+
+            var response = await client.PostAsync(url, formData);
+
+            string parse = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<T>(parse);
+        }
+        public string audDError(string errorNum)
+        {
+            switch (errorNum)
+            {
+                case "901":
+                    return "No Api Token Passed";
+                    break;
+                case "900":
+                    return "Wrong Api Token";
+                    break;
+                case "600":
+                    return "Incorrect URL";
+                    break;
+                case "700":
+                    return "Didn't recieve the file";
+                    break;
+                case "500":
+                    return "Incorrect audio file";
+                    break;
+                case "400":
+                    return "Audio file too big";
+                    break;
+                case "300":
+                    return "Fingerprinting Error (Audio file too small)";
+                    break;
+                case "100":
+                    return "Unknown Error";
+                    break;
+                default:
+                    return "This is a known, but not accounted for, error";
+            }
+        }
     }
+
+    
 }
