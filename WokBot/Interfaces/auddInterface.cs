@@ -126,7 +126,7 @@ namespace WokBot.Interfaces
         public string error_message { get; set; }
     }
 
-    class audD
+    class auddInterface
     {
         public string status { get; set; }
         public Result result { get; set; }
