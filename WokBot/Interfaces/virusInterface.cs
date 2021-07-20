@@ -105,7 +105,7 @@ namespace WokBot.Interfaces
         public Vendor BaiduInternational { get; set; }
     }
 
-    public class Virus_total
+    public class virusInterface
     {
         public string scan_id { get; set; }
         public string resource { get; set; }

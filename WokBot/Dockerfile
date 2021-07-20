@@ -10,6 +10,7 @@ RUN dotnet publish "WokBot/WokBot.sln" -c Release -o /app/publish/
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0-alpine
 
+ENV docker = 1
 ENV ISDOCKER = 1
 
 RUN apk update && apk add \
@@ -26,8 +27,7 @@ RUN mkdir -p /app/publish
 COPY --from=build-env /app/publish/ /app/publish/
 
 RUN curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /app/publish/youtube-dl
+
 RUN chmod +rx /app/publish/youtube-dl
-    
 
 ENTRYPOINT ["dotnet", "/app/publish/WokBot.dll"]
-

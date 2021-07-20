@@ -21,4 +21,7 @@
       <UserProperties />
     </VisualStudio>
   </ProjectExtensions>
+  <ItemGroup>
+    <None Remove="..\.dockerignore" />
+  </ItemGroup>
 </Project>

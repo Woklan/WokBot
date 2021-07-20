@@ -13,7 +13,7 @@ namespace WokBot.Commands
         {
             string url = "http://api.urbandictionary.com/v0/define?term=" + search_term;
 
-            urban_dictionary result = await Program.utility.ApiCall<urban_dictionary>(url);
+            urbanInterface result = await Program.utility.ApiCall<urbanInterface>(url);
 
             if (result.data.Count != 0)
             {

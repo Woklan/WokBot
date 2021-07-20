@@ -39,7 +39,7 @@ namespace WokBot.Interfaces
         [JsonProperty("thumbs_down")]
         public int ThumbsDown { get; set; }
     }
-    class urban_dictionary
+    class urbanInterface
     {
         [JsonProperty("list")]
         public List<urban_data> data { get; set; }
