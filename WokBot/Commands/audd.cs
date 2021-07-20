@@ -1,4 +1,6 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
+using Discord.Rest;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +25,8 @@ namespace WokBot.Commands
                 File.Delete(Program.resourcesInterface.video_output + "audd2.mp3");
             }
 
-            Console.WriteLine("audd Hit");
+            RestUserMessage message = await Context.Channel.SendMessageAsync("audd: Searching for song...");
+
             try
             {
                 await Program.utility.YoutubeDownloadLink(search_video, "audd.mp3");
@@ -31,11 +34,12 @@ namespace WokBot.Commands
             {
                 Console.WriteLine("Error: {0}", e);
             }
-            
-            Console.WriteLine("Video Downloaded");
+
+            await message.ModifyAsync(x => x.Content = "audd: Clipping Song...");
 
             await Program.utility.CutVideo("audd.mp3", "audd2.mp3", 0, 15);
-            Console.WriteLine("Video Cut");
+
+            await message.ModifyAsync(x => x.Content = "audd: Comparing Audio...");
 
             FileStream data = File.OpenRead(Program.resourcesInterface.video_output + "audd2.mp3");
 
@@ -43,27 +47,36 @@ namespace WokBot.Commands
 
             param.Add(("api_token", Program.resourcesInterface.audD));
 
-            Console.WriteLine("Api Hit");
-            audD response = await Program.utility.UploadAsync<audD>("https://api.audd.io", "audd2.mp3", data, param);
-            Console.WriteLine("Successful Hit on API!");
-
-            Console.WriteLine("Response: " + response.status);
+            auddInterface response = await Program.utility.UploadAsync<auddInterface>("https://api.audd.io", "audd2.mp3", data, param);
 
             if (response.status == "success")
             {
                 if (response.result == null)
                 {
-                    await Context.Channel.SendMessageAsync("I could not find the song");
+                    await message.ModifyAsync(x => x.Content = "audd: I could not find the song specified!");
                 }
                 else
                 {
-                    await Context.Channel.SendMessageAsync(response.result.song_link);
+                    Console.WriteLine("POG");
+                    string description = ("Artist: " + response.result.artist + "\nAlbum: " + response.result.album + "\nRelease Date: " + response.result.release_date);
+                    var embed = new EmbedBuilder();
+                    embed.Title = response.result.title;
+                    embed.Url = response.result.song_link;
+                    // This is causing issue
+                    if (response.result.spotify != null && response.result.spotify.album != null && response.result.spotify.album.images.Count > 0 && response.result.spotify.album.images[0].url != null)
+                    {
+                        embed.WithThumbnailUrl(response.result.spotify.album.images[0].url);
+                    }
+                    embed.Description = description;
+                    embed.WithColor(Color.Red);
+                    embed.WithFooter(footer => footer.Text = "Audio Recognition used is audd | https://audd.io/");
+                    await ReplyAsync(embed: embed.Build());
+                    await message.DeleteAsync();
                 }
             }
             else
             {
-                await Context.Channel.SendMessageAsync(Program.utility.audDError(response.error.error_code));
-                await Context.Channel.SendMessageAsync(response.error.error_message);
+                await message.ModifyAsync(x => x.Content = Program.utility.audDError(response.error.error_code));
             }
 
             File.Delete(Program.resourcesInterface.video_output + "audd.mp3");
