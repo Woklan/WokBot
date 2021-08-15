@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Audio;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using FFmpeg.NET;
 using NYoutubeDL;
@@ -54,9 +55,13 @@ namespace WokBot.Commands
 
                 youtubeInterface data;
 
+                RestUserMessage message = await Context.Channel.SendMessageAsync("Generating Search Term");
+
                 do
                 {
                     string random_combination = Program.utility.GenerateRandomString(5);
+
+                    await Context.Channel.SendMessageAsync("I searched for: " + random_combination + ".");
 
                     string url = "https://www.googleapis.com/youtube/v3/search?key=" + Program.resourcesInterface.youtube + "&maxResults=1&part=snippet&type=video&q=" + random_combination;
 
@@ -69,12 +74,15 @@ namespace WokBot.Commands
                 } while (data.Items.Count == 0);
                 
                 Console.WriteLine("SUCCESS: Found a Youtube Video");
+                await message.ModifyAsync(x => x.Content = "Downloading Youtube Video");
 
                 string video_id = data.Items[0].Id.VideoId;
 
                 await Program.utility.YoutubeDownloadID(video_id);
 
                 Console.WriteLine("Youtube Success");
+
+                await message.ModifyAsync(x => x.Content = "Editing Youtube Video");
 
                 await Program.utility.CutVideo("video.mp3", "video2.mp3", 0, 5);
 
