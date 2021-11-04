@@ -1,6 +1,7 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine as build-env
+#FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine as build-env
+FROM mcr.microsoft.com/dotnet/sdk:5.0.402-alpine3.13-amd64 as build-env
 
 RUN mkdir -p /app/build /app/publish WokBot
 
@@ -8,7 +9,8 @@ COPY ["./", "WokBot/"]
 
 RUN dotnet publish "WokBot/WokBot.sln" -c Release -o /app/publish/
 
-FROM mcr.microsoft.com/dotnet/runtime:6.0-alpine
+#FROM mcr.microsoft.com/dotnet/runtime:6.0-alpine
+FROM mcr.microsoft.com/dotnet/runtime:5.0-alpine
 
 ENV docker = 1
 
