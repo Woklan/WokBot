@@ -30,6 +30,9 @@ namespace WokBot.Classes
             if (File.Exists(Program.resourcesInterface.video_output + _formattedOutput)) File.Delete(Program.resourcesInterface.video_output + _formattedOutput);
         }
 
+        // Cuts the inputted youtube video, and updates relevant values
+        // INPUTS   :
+        // OUTPUTS  :
         private async Task CutVideo()
         {
             // Sets up input for FFMPEG
@@ -39,51 +42,63 @@ namespace WokBot.Classes
             Engine ffmpeg = new Engine(Program.resourcesInterface.ffmpeg_executable);
 
             // Sets up options for FFMPEG
-            ConversionOptions options = new ConversionOptions();
+            ConversionOptions options = new();
             options.CutMedia(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5));
 
             // Cuts video down to 5 seconds long
             await ffmpeg.ConvertAsync(inputFile, outputFile, options);
 
-            // Deletes the original video, and replaces with the new 5 seoncd video
+            // Deletes the original video, and replaces with the new 5 second video
             this.delete();
             _output = outputFilename;
             _formattedOutput = outputFilename;
         }
 
+  
+        // Downloads the inputted youtube video, and returns the filename
+        // INPUTS   :
+        // OUTPUTS  : STRING | filename
         public async Task<string> download()
         {
+            // Sets up relevant arguments for downloading the video
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                CreateNoWindow  = true,
+                CreateNoWindow  = false,
                 UseShellExecute = false,
-                FileName        = Program.resourcesInterface.ffmpeg_executable,
-                WindowStyle     = ProcessWindowStyle.Hidden,
+                FileName        = Program.resourcesInterface.video_executable,
+               // WindowStyle     = ProcessWindowStyle.Hidden,
                 
                 Arguments       =
                     "--no-playlist "    +
                     "--extract-audio "  +
                     "--audio-format "   +   "mp3 "  +
-                    "--audio-quality"   +   "0 "    +
-                    "--format"          +   "mp4 "  +
-                    "--paths"           +   _paths  +   " "         +
-                    "--output"          +   _output +   ".%(ext)s"  +
+                    "--audio-quality "  +   "0 "    +
+                    "--format "         +   "mp4 "  +
+                    "--paths "          +   _paths  +   " "         +
+                    "--output "         +   _output +   ".%(ext)s"  +
                     " "                 +   _input
             };
 
+            
+
+            // Runs the Process, and waits for it to complete
             using(Process exeProcess = Process.Start(startInfo))
             {
                 await exeProcess.WaitForExitAsync().ConfigureAwait(false);
             }
 
+            // If there is a five second flag, cut the video down to five seconds
             if (_fiveSecondFlag) await this.CutVideo();
 
             return _formattedOutput;
         }
 
+        // Handles deleting any created files, if they exist.
+        // INPUT    : 
+        // OUTPUT   :
         public void delete()
         {
-            if (File.Exists(Program.resourcesInterface.video_output + _output)) File.Delete(Program.resourcesInterface.video_output + _formattedOutput);
+            if (File.Exists(Program.resourcesInterface.video_output + _formattedOutput)) File.Delete(Program.resourcesInterface.video_output + _formattedOutput);
             _output = null;
             _formattedOutput = null;
         }
