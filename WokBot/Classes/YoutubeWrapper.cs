@@ -63,10 +63,10 @@ namespace WokBot.Classes
             // Sets up relevant arguments for downloading the video
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                CreateNoWindow  = false,
+                CreateNoWindow  = true,
                 UseShellExecute = false,
                 FileName        = Program.resourcesInterface.video_executable,
-               // WindowStyle     = ProcessWindowStyle.Hidden,
+                WindowStyle     = ProcessWindowStyle.Hidden,
                 
                 Arguments       =
                     "--no-playlist "    +
