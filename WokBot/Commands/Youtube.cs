@@ -1,16 +1,10 @@
 ﻿using Discord;
-using Discord.Audio;
 using Discord.Commands;
 using Discord.Rest;
-using Discord.WebSocket;
 using FFmpeg.NET;
-using NYoutubeDL;
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
+using WokBot.Classes;
 using WokBot.Interfaces;
 
 namespace WokBot.Commands
@@ -42,10 +36,7 @@ namespace WokBot.Commands
 
                 channel = channel ?? (Context.User as IGuildUser)?.VoiceChannel;
 
-                if (channel == null)
-                {
-                    return;
-                }
+                if (channel == null) return;
 
                 if (await Program.utility.CheckBotInVoiceChat(channel))
                 {
@@ -78,25 +69,15 @@ namespace WokBot.Commands
 
                 string video_id = data.Items[0].Id.VideoId;
 
-                await Program.utility.YoutubeDownloadID(video_id);
+                string video_url = "https://www.youtube.com/watch?v=" + video_id;
 
-                Console.WriteLine("Youtube Success");
+                YoutubeWrapper youtube = new YoutubeWrapper(video_url, true);
 
-                await message.ModifyAsync(x => x.Content = "Editing Youtube Video");
+                string fileName = await youtube.download();
 
-                await Program.utility.CutVideo("video.mp3", "video2.mp3", 0, 5);
+                await Program.utility.PlayAudio(channel, fileName);
 
-                await Program.utility.PlayAudio(channel);
-
-                if(File.Exists(Program.resourcesInterface.video_output + "video.mp3"))
-                {
-                    File.Delete(Program.resourcesInterface.video_output + "video.mp3");
-                }
-
-                if(File.Exists(Program.resourcesInterface.video_output + "video.mp3"))
-                {
-                    File.Delete(Program.resourcesInterface.video_output + "video2.mp3");
-                }
+                youtube.delete();
 
                 await Context.Channel.SendMessageAsync("https://www.youtube.com/watch?v=" + video_id);
 
