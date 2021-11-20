@@ -28,7 +28,7 @@ namespace WokBot.Commands
         }
 
         [Command("youtube", RunMode = RunMode.Async)]
-        public async Task SayAsync()
+        public async Task SayAsync(string video)
         {
             try
             {
@@ -46,30 +46,41 @@ namespace WokBot.Commands
 
                 youtubeInterface data;
 
-                RestUserMessage message = await Context.Channel.SendMessageAsync("Generating Search Term");
+                string video_url = "";
+                string video_id = "";
 
-                do
+                if(video == "-r")
                 {
-                    string random_combination = Program.utility.GenerateRandomString(5);
+                    RestUserMessage message = await Context.Channel.SendMessageAsync("Generating Search Term");
 
-                    await Context.Channel.SendMessageAsync("I searched for: " + random_combination + ".");
-
-                    string url = "https://www.googleapis.com/youtube/v3/search?key=" + Program.resourcesInterface.youtube + "&maxResults=1&part=snippet&type=video&q=" + random_combination;
-
-                    data = await Program.utility.ApiCall<youtubeInterface>(url);
-
-                    if(data.Items.Count == 0)
+                    do
                     {
-                        Console.WriteLine("WARNING: Generated String couldn't get a Video.");
-                    }
-                } while (data.Items.Count == 0);
-                
-                Console.WriteLine("SUCCESS: Found a Youtube Video");
-                await message.ModifyAsync(x => x.Content = "Downloading Youtube Video");
+                        string random_combination = Program.utility.GenerateRandomString(5);
 
-                string video_id = data.Items[0].Id.VideoId;
+                        await Context.Channel.SendMessageAsync("I searched for: " + random_combination + ".");
 
-                string video_url = "https://www.youtube.com/watch?v=" + video_id;
+                        string url = "https://www.googleapis.com/youtube/v3/search?key=" + Program.resourcesInterface.youtube + "&maxResults=1&part=snippet&type=video&q=" + random_combination;
+
+                        data = await Program.utility.ApiCall<youtubeInterface>(url);
+
+                        if (data.Items.Count == 0)
+                        {
+                            Console.WriteLine("WARNING: Generated String couldn't get a Video.");
+                        }
+                    } while (data.Items.Count == 0);
+
+                    Console.WriteLine("SUCCESS: Found a Youtube Video");
+
+                    await message.ModifyAsync(x => x.Content = "Downloading Youtube Video");
+
+                    video_id = data.Items[0].Id.VideoId;
+
+                    video_url = "https://www.youtube.com/watch?v=" + video_id;
+                }
+                else
+                {
+                    video_url = video;
+                }
 
                 YoutubeWrapper youtube = new YoutubeWrapper(video_url, true);
 
@@ -79,8 +90,10 @@ namespace WokBot.Commands
 
                 youtube.delete();
 
-                await Context.Channel.SendMessageAsync("https://www.youtube.com/watch?v=" + video_id);
-
+                if(video == "-r")
+                {
+                    await Context.Channel.SendMessageAsync("https://www.youtube.com/watch?v=" + video_id);
+                }
                 Console.WriteLine("BIG SUCCESSS");
             }catch(Exception e)
             {
