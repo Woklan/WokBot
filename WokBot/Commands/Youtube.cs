@@ -49,6 +49,8 @@ namespace WokBot.Commands
                 string video_url = "";
                 string video_id = "";
 
+                YoutubeWrapper youtube;
+
                 if(video == "-r")
                 {
                     RestUserMessage message = await Context.Channel.SendMessageAsync("Generating Search Term");
@@ -76,13 +78,15 @@ namespace WokBot.Commands
                     video_id = data.Items[0].Id.VideoId;
 
                     video_url = "https://www.youtube.com/watch?v=" + video_id;
+
+                    youtube = new YoutubeWrapper(video_url, true);
                 }
                 else
                 {
                     video_url = video;
-                }
 
-                YoutubeWrapper youtube = new YoutubeWrapper(video_url, true);
+                    youtube = new YoutubeWrapper(video_url);
+                }
 
                 string fileName = await youtube.download();
 
