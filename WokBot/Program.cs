@@ -18,13 +18,13 @@ namespace WokBot
     {
         public static void Main(string[] args) => new Program().MainAsync(args).GetAwaiter().GetResult();
         private DiscordSocketClient _client;
-        private static CommandHandler commandHandler;
+        private static CommandHandler _commandHandler;
         public static CommandService Commands;
         public static ResourcesInterface resourcesInterface;
         public static Utility utility;
         public static ulong bot_id = 466905552648142848;
         public static ILogger logger;
-        private static int logCount = 1;
+        private static int _logCount = 1;
 
         public async Task MainAsync(string[] args)
         {
@@ -37,27 +37,26 @@ namespace WokBot
             _client = new DiscordSocketClient(_config);
 
             Commands = new CommandService();
-            commandHandler = new CommandHandler(_client, Commands);
+            _commandHandler = new CommandHandler(_client, Commands);
 
-            if (System.Environment.GetEnvironmentVariable("docker") == null)
+            if (Environment.GetEnvironmentVariable("docker") == null)
             {
                 resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(File.ReadAllText(@"../../../resources.json").Replace('\"', ' '));
             }
             else
             {
-                string json = JsonConvert.SerializeObject(System.Environment.GetEnvironmentVariables());
-                resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(json);
+                resourcesInterface = JsonConvert.DeserializeObject<ResourcesInterface>(JsonConvert.SerializeObject(Environment.GetEnvironmentVariables()));
             }
 
             utility = new Utility();
 
             await _client.LoginAsync(TokenType.Bot, resourcesInterface.discord);
-            await commandHandler.InstallCommandsAsync();
+            await _commandHandler.InstallCommandsAsync();
             await _client.StartAsync();
 
             _client.Ready += () =>
             {
-                Console.WriteLine("Bot is connected!");
+                logger.LogInformation(generateLogNum(), "Bot is Connected!");
                 return Task.CompletedTask;
             };
 
@@ -68,8 +67,8 @@ namespace WokBot
 
         public static int generateLogNum()
         {
-            logCount++;
-            return logCount - 1;
+            _logCount++;
+            return _logCount - 1;
         }
 
         static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -78,6 +77,7 @@ namespace WokBot
                 builder.ClearProviders()
                 .AddLogger(configuration =>
                 {
+                    configuration.LogLevels.Add(LogLevel.Debug, ConsoleColor.Blue);
                     configuration.LogLevels.Add(LogLevel.Warning, ConsoleColor.Magenta);
                     configuration.LogLevels.Add(LogLevel.Error, ConsoleColor.Red);
                 }));

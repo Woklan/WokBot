@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Audio;
 using FFmpeg.NET;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NYoutubeDL;
 using System;
@@ -18,7 +19,6 @@ namespace WokBot.Classes
     {
         static readonly HttpClient client = new HttpClient();
         private static Random _random = new Random();
-        //private YoutubeDL _youtubeDL = new YoutubeDL();
         private List<ulong> _currentVoiceChat = new List<ulong>();
 
         public Utility()
@@ -62,8 +62,8 @@ namespace WokBot.Classes
         public async Task PlayAudio(IVoiceChannel channel, string fileName)
         {
             // Bot joins the voice channel
-            var audioClient = await channel.ConnectAsync();
-            Console.WriteLine("ALERT: Connected to voice!");
+            IAudioClient audioClient = await channel.ConnectAsync();
+            Program.logger.LogInformation(Program.generateLogNum(), "Connected to voice!");
 
             // Bots plays the video in the voice channel
             using (Process ffmpeg = Program.utility.CreateStream(Program.resourcesInterface.video_output + fileName))
@@ -77,19 +77,19 @@ namespace WokBot.Classes
             // Bot Disconnects from Voice
             await channel.DisconnectAsync();
             removeCurrentVoice(channel);
-            Console.WriteLine("ALERT: Disconnected to voice!");
+            Program.logger.LogInformation(Program.generateLogNum(), "Disconnected to voice");
         }
 
         public async Task PlayAudio(IVoiceChannel channel)
         {
             // Bot joins the voice channel
-            var audioClient = await channel.ConnectAsync();
-            Console.WriteLine("ALERT: Connected to voice!");
+            IAudioClient audioClient = await channel.ConnectAsync();
+            Program.logger.LogInformation(Program.generateLogNum(), "Connected to voice!");
 
             // Bots plays the video in the voice channel
-            using (var ffmpeg = Program.utility.CreateStream(Program.resourcesInterface.video_output + "video2.mp3"))
-            using (var output = ffmpeg.StandardOutput.BaseStream)
-            using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
+            using (Process ffmpeg = Program.utility.CreateStream(Program.resourcesInterface.video_output + "video2.mp3"))
+            using (Stream output = ffmpeg.StandardOutput.BaseStream)
+            using (AudioOutStream discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
             {
                 try { await output.CopyToAsync(discord); }
                 finally { await discord.FlushAsync(); }
@@ -98,7 +98,7 @@ namespace WokBot.Classes
             // Bot Disconnects from Voice
             await channel.DisconnectAsync();
             removeCurrentVoice(channel);
-            Console.WriteLine("ALERT: Disconnected to voice!");
+            Program.logger.LogInformation(Program.generateLogNum(), "Disconnected to voice");
         }
 
         public async Task<bool> CheckBotInVoiceChat(IVoiceChannel channel)

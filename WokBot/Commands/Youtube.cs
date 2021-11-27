@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Discord.Rest;
 using FFmpeg.NET;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using WokBot.Classes;
@@ -30,6 +31,8 @@ namespace WokBot.Commands
         [Command("youtube", RunMode = RunMode.Async)]
         public async Task SayAsync(string video)
         {
+            Program.logger.LogInformation(Program.generateLogNum(), Context.User + " used the Youtube Command.");
+
             try
             {
                 IVoiceChannel channel = null;
@@ -40,7 +43,7 @@ namespace WokBot.Commands
 
                 if (await Program.utility.CheckBotInVoiceChat(channel))
                 {
-                    Console.WriteLine("ALERT: Bot was already in channel");
+                    Program.logger.LogError(Program.generateLogNum(), "Bot was already in channel.");
                     return;
                 }
 
@@ -67,11 +70,11 @@ namespace WokBot.Commands
 
                         if (data.Items.Count == 0)
                         {
-                            Console.WriteLine("WARNING: Generated String couldn't get a Video.");
+                            Program.logger.LogInformation(Program.generateLogNum(), "Generated String couldn't get a video.");
                         }
                     } while (data.Items.Count == 0);
 
-                    Console.WriteLine("SUCCESS: Found a Youtube Video");
+                    Program.logger.LogInformation(Program.generateLogNum(), "Found a Youtube Video");
 
                     await message.ModifyAsync(x => x.Content = "Downloading Youtube Video");
 
@@ -98,10 +101,11 @@ namespace WokBot.Commands
                 {
                     await Context.Channel.SendMessageAsync("https://www.youtube.com/watch?v=" + video_id);
                 }
-                Console.WriteLine("BIG SUCCESSS");
+
+                Program.logger.LogInformation(Program.generateLogNum(), Context.User + "'s Youtube Command was completed.");
             }catch(Exception e)
             {
-                Console.WriteLine("Error: {0}", e);
+                Program.logger.LogError(Program.generateLogNum(), e.ToString());
             }
             
         }

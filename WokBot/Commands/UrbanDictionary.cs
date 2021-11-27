@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using WokBot.Interfaces;
 
@@ -11,6 +12,7 @@ namespace WokBot.Commands
 
         public async Task SayAsync(string search_term)
         {
+            Program.logger.LogInformation(Program.generateLogNum(), Context.User + " used Urban Command.");
             string url = "http://api.urbandictionary.com/v0/define?term=" + search_term;
 
             urbanInterface result = await Program.utility.ApiCall<urbanInterface>(url);
@@ -25,12 +27,12 @@ namespace WokBot.Commands
                 embed.WithColor(Color.Blue);
                 embed.WithFooter(footer => footer.Text = "Submitted by: " + result.data[0].Author);
                 await ReplyAsync(embed: embed.Build());
-                await Context.Channel.SendMessageAsync("POG!");
             }
             else
             {
-                await Context.Channel.SendMessageAsync("I found no definition for the term: " + search_term + ".");
+                await Context.Channel.SendMessageAsync("I found no definition for the term: " + search_term + "."); 
             }
+            Program.logger.LogInformation(Program.generateLogNum(), Context.User + "'s Urban Command has been completed.");
         }
     }
 }
