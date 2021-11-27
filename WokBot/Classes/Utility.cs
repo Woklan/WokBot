@@ -77,27 +77,6 @@ namespace WokBot.Classes
             Program.logger.LogInformation(_logNumber, "Disconnected to voice");
         }
 
-        public async Task PlayAudio(IVoiceChannel channel)
-        {
-            // Bot joins the voice channel
-            IAudioClient audioClient = await channel.ConnectAsync();
-            Program.logger.LogInformation(Program.generateLogNum(), "Connected to voice!");
-
-            // Bots plays the video in the voice channel
-            using (Process ffmpeg = Program.utility.CreateStream(Program.resourcesInterface.video_output + "video2.mp3"))
-            using (Stream output = ffmpeg.StandardOutput.BaseStream)
-            using (AudioOutStream discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
-            {
-                try { await output.CopyToAsync(discord); }
-                finally { await discord.FlushAsync(); }
-            }
-
-            // Bot Disconnects from Voice
-            await channel.DisconnectAsync();
-            removeCurrentVoice(channel);
-            Program.logger.LogInformation(Program.generateLogNum(), "Disconnected to voice");
-        }
-
         public async Task<bool> CheckBotInVoiceChat(IVoiceChannel channel)
         {
             // Grabs iterator for Async User List
