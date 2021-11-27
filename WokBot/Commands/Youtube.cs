@@ -1,15 +1,10 @@
 ﻿using Discord;
-using Discord.Audio;
 using Discord.Commands;
-using Discord.WebSocket;
+using Discord.Rest;
 using FFmpeg.NET;
-using NYoutubeDL;
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
+using WokBot.Classes;
 using WokBot.Interfaces;
 
 namespace WokBot.Commands
@@ -33,7 +28,7 @@ namespace WokBot.Commands
         }
 
         [Command("youtube", RunMode = RunMode.Async)]
-        public async Task SayAsync()
+        public async Task SayAsync(string video)
         {
             try
             {
@@ -41,10 +36,7 @@ namespace WokBot.Commands
 
                 channel = channel ?? (Context.User as IGuildUser)?.VoiceChannel;
 
-                if (channel == null)
-                {
-                    return;
-                }
+                if (channel == null) return;
 
                 if (await Program.utility.CheckBotInVoiceChat(channel))
                 {
@@ -54,44 +46,58 @@ namespace WokBot.Commands
 
                 youtubeInterface data;
 
-                do
+                string video_url = "";
+                string video_id = "";
+
+                YoutubeWrapper youtube;
+
+                if(video == "-r")
                 {
-                    string random_combination = Program.utility.GenerateRandomString(5);
+                    RestUserMessage message = await Context.Channel.SendMessageAsync("Generating Search Term");
 
-                    string url = "https://www.googleapis.com/youtube/v3/search?key=" + Program.resourcesInterface.youtube + "&maxResults=1&part=snippet&type=video&q=" + random_combination;
-
-                    data = await Program.utility.ApiCall<youtubeInterface>(url);
-
-                    if(data.Items.Count == 0)
+                    do
                     {
-                        Console.WriteLine("WARNING: Generated String couldn't get a Video.");
-                    }
-                } while (data.Items.Count == 0);
-                
-                Console.WriteLine("SUCCESS: Found a Youtube Video");
+                        string random_combination = Program.utility.GenerateRandomString(5);
 
-                string video_id = data.Items[0].Id.VideoId;
+                        await Context.Channel.SendMessageAsync("I searched for: " + random_combination + ".");
 
-                await Program.utility.YoutubeDownloadID(video_id);
+                        string url = "https://www.googleapis.com/youtube/v3/search?key=" + Program.resourcesInterface.youtube + "&maxResults=1&part=snippet&type=video&q=" + random_combination;
 
-                Console.WriteLine("Youtube Success");
+                        data = await Program.utility.ApiCall<youtubeInterface>(url);
 
-                await Program.utility.CutVideo("video.mp3", "video2.mp3", 0, 5);
+                        if (data.Items.Count == 0)
+                        {
+                            Console.WriteLine("WARNING: Generated String couldn't get a Video.");
+                        }
+                    } while (data.Items.Count == 0);
 
-                await Program.utility.PlayAudio(channel);
+                    Console.WriteLine("SUCCESS: Found a Youtube Video");
 
-                if(File.Exists(Program.resourcesInterface.video_output + "video.mp3"))
+                    await message.ModifyAsync(x => x.Content = "Downloading Youtube Video");
+
+                    video_id = data.Items[0].Id.VideoId;
+
+                    video_url = "https://www.youtube.com/watch?v=" + video_id;
+
+                    youtube = new YoutubeWrapper(video_url, true);
+                }
+                else
                 {
-                    File.Delete(Program.resourcesInterface.video_output + "video.mp3");
+                    video_url = video;
+
+                    youtube = new YoutubeWrapper(video_url);
                 }
 
-                if(File.Exists(Program.resourcesInterface.video_output + "video.mp3"))
+                string fileName = await youtube.download();
+
+                await Program.utility.PlayAudio(channel, fileName);
+
+                youtube.delete();
+
+                if(video == "-r")
                 {
-                    File.Delete(Program.resourcesInterface.video_output + "video2.mp3");
+                    await Context.Channel.SendMessageAsync("https://www.youtube.com/watch?v=" + video_id);
                 }
-
-                await Context.Channel.SendMessageAsync("https://www.youtube.com/watch?v=" + video_id);
-
                 Console.WriteLine("BIG SUCCESSS");
             }catch(Exception e)
             {
