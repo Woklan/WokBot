@@ -12,7 +12,7 @@ namespace WokBot.Commands
 {
     public class YoutubeModule : ModuleBase<SocketCommandContext>
     {
-        private static Random random = new Random();
+        private static int _logNumber;
         static async Task<MediaFile> ModifyVideo()
         {
             Console.WriteLine("FFMPEG");
@@ -31,7 +31,9 @@ namespace WokBot.Commands
         [Command("youtube", RunMode = RunMode.Async)]
         public async Task SayAsync(string video)
         {
-            Program.logger.LogInformation(Program.generateLogNum(), Context.User + " used the Youtube Command.");
+            _logNumber = Program.generateLogNum();
+
+            Program.logger.LogInformation(_logNumber, Context.User + " used the Youtube Command.");
 
             try
             {
@@ -43,7 +45,7 @@ namespace WokBot.Commands
 
                 if (await Program.utility.CheckBotInVoiceChat(channel))
                 {
-                    Program.logger.LogError(Program.generateLogNum(), "Bot was already in channel.");
+                    Program.logger.LogError(_logNumber, "Bot was already in channel.");
                     return;
                 }
 
@@ -70,11 +72,11 @@ namespace WokBot.Commands
 
                         if (data.Items.Count == 0)
                         {
-                            Program.logger.LogInformation(Program.generateLogNum(), "Generated String couldn't get a video.");
+                            Program.logger.LogInformation(_logNumber, "Generated String couldn't get a video.");
                         }
                     } while (data.Items.Count == 0);
 
-                    Program.logger.LogInformation(Program.generateLogNum(), "Found a Youtube Video");
+                    Program.logger.LogInformation(_logNumber, "Found a Youtube Video");
 
                     await message.ModifyAsync(x => x.Content = "Downloading Youtube Video");
 
@@ -93,7 +95,7 @@ namespace WokBot.Commands
 
                 string fileName = await youtube.download();
 
-                await Program.utility.PlayAudio(channel, fileName);
+                await Program.utility.PlayAudio(channel, fileName, _logNumber);
 
                 youtube.delete();
 
@@ -102,10 +104,10 @@ namespace WokBot.Commands
                     await Context.Channel.SendMessageAsync("https://www.youtube.com/watch?v=" + video_id);
                 }
 
-                Program.logger.LogInformation(Program.generateLogNum(), Context.User + "'s Youtube Command was completed.");
+                Program.logger.LogInformation(_logNumber, Context.User + "'s Youtube Command was completed.");
             }catch(Exception e)
             {
-                Program.logger.LogError(Program.generateLogNum(), e.ToString());
+                Program.logger.LogError(_logNumber, e.ToString());
             }
             
         }

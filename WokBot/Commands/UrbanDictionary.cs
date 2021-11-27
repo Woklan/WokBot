@@ -8,11 +8,14 @@ namespace WokBot.Commands
 {
     public class UrbanDictionary : ModuleBase<SocketCommandContext>
     {
-        [Command("urban")]
+        private static int _logNumber;
 
+        [Command("urban")]
+        
         public async Task SayAsync(string search_term)
         {
-            Program.logger.LogInformation(Program.generateLogNum(), Context.User + " used Urban Command.");
+            _logNumber = Program.generateLogNum();
+            Program.logger.LogInformation(_logNumber, Context.User + " used Urban Command.");
             string url = "http://api.urbandictionary.com/v0/define?term=" + search_term;
 
             urbanInterface result = await Program.utility.ApiCall<urbanInterface>(url);
@@ -32,7 +35,7 @@ namespace WokBot.Commands
             {
                 await Context.Channel.SendMessageAsync("I found no definition for the term: " + search_term + "."); 
             }
-            Program.logger.LogInformation(Program.generateLogNum(), Context.User + "'s Urban Command has been completed.");
+            Program.logger.LogInformation(_logNumber, Context.User + "'s Urban Command has been completed.");
         }
     }
 }

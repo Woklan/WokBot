@@ -1,12 +1,9 @@
 ﻿using Discord;
 using Discord.Audio;
-using FFmpeg.NET;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using NYoutubeDL;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -59,11 +56,11 @@ namespace WokBot.Classes
             });
         }
 
-        public async Task PlayAudio(IVoiceChannel channel, string fileName)
+        public async Task PlayAudio(IVoiceChannel channel, string fileName, int _logNumber = 0)
         {
             // Bot joins the voice channel
             IAudioClient audioClient = await channel.ConnectAsync();
-            Program.logger.LogInformation(Program.generateLogNum(), "Connected to voice!");
+            Program.logger.LogInformation(_logNumber, "Connected to voice!");
 
             // Bots plays the video in the voice channel
             using (Process ffmpeg = Program.utility.CreateStream(Program.resourcesInterface.video_output + fileName))
@@ -77,7 +74,7 @@ namespace WokBot.Classes
             // Bot Disconnects from Voice
             await channel.DisconnectAsync();
             removeCurrentVoice(channel);
-            Program.logger.LogInformation(Program.generateLogNum(), "Disconnected to voice");
+            Program.logger.LogInformation(_logNumber, "Disconnected to voice");
         }
 
         public async Task PlayAudio(IVoiceChannel channel)
@@ -158,7 +155,6 @@ namespace WokBot.Classes
                 HttpContent stringContent = new StringContent(param.ElementAt(i).Item2);
                 Console.WriteLine(stringContent.ReadAsStringAsync() + " | " + param.ElementAt(i).Item1 + " | " + param.ElementAt(i).Item2);
                 formData.Add(stringContent, param.ElementAt(i).Item1);
-                
             }
 
             formData.Add(fileContent, "file", filename);
