@@ -22,7 +22,7 @@ namespace WokBot.Classes
         {
             client.DefaultRequestHeaders.Add("Accept", "application/json");
 
-            Console.WriteLine(Program.resourcesInterface.video_executable);
+            Program.logger.LogInformation(0, Program.resourcesInterface.video_executable);
         }
 
         public async Task<T> ApiCall<T>(string url)
