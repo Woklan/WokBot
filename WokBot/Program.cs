@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -54,6 +56,8 @@ namespace WokBot
             await _commandHandler.InstallCommandsAsync();
             await _client.StartAsync();
 
+            _client.MessageReceived += MessageReceived;
+
             _client.Ready += () =>
             {
                 logger.LogInformation(generateLogNum(), "Bot is Connected!");
@@ -63,6 +67,36 @@ namespace WokBot
             await _client.SetGameAsync("Gaming", "https://twitch.tv/minemanluke", ActivityType.Streaming);
 
             await Task.Delay(-1);
+        }
+
+        private async Task MessageReceived(SocketMessage message)
+        {
+            if (message.Author.Id == _client.CurrentUser.Id) return;
+            
+            var attachments = message.Attachments.Where(x => Path.GetExtension(x.Url) == ".zip");
+
+            if (attachments.Count() == 0) return;
+
+            var videoOutput = resourcesInterface.video_output;
+            var zipInsight = new ZipInsight();
+            var listString = "";
+
+            foreach (var attachment in attachments)
+            {
+                var url = attachment.Url;
+
+                var list = zipInsight.ZipContents(url, videoOutput);
+
+                foreach (var entry in list) listString += entry + "\n";
+
+                var embedBuilder = new EmbedBuilder()
+                {
+                    Title = "Contents of: " + attachment.Filename,
+                    Description = listString
+                };
+
+                await message.Channel.SendMessageAsync(embed: embedBuilder.Build());
+            }
         }
 
         public static int generateLogNum()
