@@ -361,6 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
 /WokBot/resources.json
 /WokBot/Resources
 /WokBot/settings.env
+/WokBot/config.json
+/WokBot/yt-dlp.exe
