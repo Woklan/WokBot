@@ -29,14 +29,14 @@ namespace WokBot
         private const string Docker = "docker";
         private const string DefaultConfigLocation = "config.json";
 
-        private const int MessageCacheSize = 100;
-        private const GatewayIntents BotGatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent;
+        
+        
 
         public static void Main(string[] args) => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
         {
-            _serviceProvider = ConfigureServices();
+            _serviceProvider = DependencyRegistry.RegisterDependencies();
             _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
 
             SetupLogging();
@@ -112,34 +112,5 @@ namespace WokBot
             
             await Task.CompletedTask;
         }
-
-        private IServiceProvider ConfigureServices()
-        {
-            var config = new DiscordSocketConfig()
-            {
-                MessageCacheSize = MessageCacheSize,
-                GatewayIntents = BotGatewayIntents
-            };
-
-            var serviceCollection = new ServiceCollection()
-                .AddSingleton(config)
-                .AddSingleton<DiscordSocketClient>();
-
-            AddServiceSingletons(serviceCollection);
-            AddCommandSingletons(serviceCollection);
-
-            return serviceCollection.BuildServiceProvider();
-        }
-
-        private IServiceCollection AddServiceSingletons(IServiceCollection serviceCollection)
-            => serviceCollection
-            .AddSingleton<VideoDownloadService>()
-            .AddSingleton<FfmpegService>();
-
-        private IServiceCollection AddCommandSingletons(IServiceCollection serviceCollection)
-            => serviceCollection
-            .AddSingleton<PingPong>()
-            .AddSingleton<UrbanDictionary>()
-            .AddSingleton<Youtube>();
     }
 }
