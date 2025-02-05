@@ -2,7 +2,7 @@
 WokBot is a discord bot developed as an excuse to learn new technologies, and to add functionality to discord.
 
 # Technical Information
-* Developed in C# and .Net 7.0;
+* Developed in C# and .Net 9.0;
 * Compatible with Docker Containers (running Alpine);
 * Built to be run on a Raspberry Pi 3B+ (Cross-Compiling);
 * Uses FFMPEG, Youtube-dl and Discord.net.
