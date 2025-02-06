@@ -3,11 +3,12 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using WokBot.Interfaces;
 using WokBot.Services.Commands;
 
 namespace WokBot.Classes
 {
-    public class CommandHandler
+    public class CommandHandler : ICommandHandler
     {
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commandService;
@@ -15,9 +16,9 @@ namespace WokBot.Classes
 
         private readonly List<Type> _commands = new()
         {
-            typeof(PingPong),
-            typeof(UrbanDictionary),
-            typeof(Youtube)
+            typeof(PingPongCommand),
+            typeof(UrbanDictionaryCommand),
+            typeof(YoutubeCommand)
         };
 
         private const char _ampersand = '&';
@@ -31,15 +32,12 @@ namespace WokBot.Classes
             _serviceProvider = serviceProvider;
         }
 
-        public void InstallCommandsAsync()
+        public async Task InstallCommandsAsync()
         {
             _client.MessageReceived += HandleCommandAsync;
 
-            RegisterCommandsAsync();
+            await RegisterCommandsAsync();
         }
-
-        private void RegisterCommandsAsync()
-            => _commands.ForEach(async command => await _commandService.AddModuleAsync(command, _serviceProvider));
 
         public async Task HandleCommandAsync(SocketMessage messageParam)
         {
@@ -63,6 +61,14 @@ namespace WokBot.Classes
             var context = new SocketCommandContext(_client, message);
 
             await _commandService.ExecuteAsync(context, _argPos, _serviceProvider);
+        }
+
+        private async Task RegisterCommandsAsync()
+        {
+            foreach(var command in _commands)
+            {
+                await _commandService.AddModuleAsync(command, _serviceProvider);
+            }
         }
     }
 }
