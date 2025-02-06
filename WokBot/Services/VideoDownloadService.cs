@@ -1,10 +1,11 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using WokBot.Interfaces;
 using YoutubeDLSharp;
 
 namespace WokBot.Services
 {
-    public class VideoDownloadService
+    public class VideoDownloadService : IVideoDownloadService
     {
         private const string YoutubeDlBinaryPath = "yt-dlp.exe";
         private const string FfmpegBinaryPath = "ffmpeg.exe";

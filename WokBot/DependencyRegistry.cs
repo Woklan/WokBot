@@ -1,9 +1,9 @@
 ﻿using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using WokBot.Services.Commands;
 using WokBot.Services;
 using Discord;
+using WokBot.Interfaces;
 
 namespace WokBot
 {
@@ -25,20 +25,13 @@ namespace WokBot
                 .AddSingleton<DiscordSocketClient>();
 
             AddServiceSingletons(serviceCollection);
-            AddCommandSingletons(serviceCollection);
 
             return serviceCollection.BuildServiceProvider();
         }
 
         private static IServiceCollection AddServiceSingletons(IServiceCollection serviceCollection)
            => serviceCollection
-           .AddSingleton<VideoDownloadService>()
-           .AddSingleton<FfmpegService>();
-
-        private static IServiceCollection AddCommandSingletons(IServiceCollection serviceCollection)
-            => serviceCollection
-            .AddSingleton<PingPong>()
-            .AddSingleton<UrbanDictionary>()
-            .AddSingleton<Youtube>();
+           .AddSingleton<IVideoDownloadService, VideoDownloadService>()
+           .AddSingleton<IFfmpegService, FfmpegService>();
     }
 }

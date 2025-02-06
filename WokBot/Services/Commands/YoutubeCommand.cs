@@ -2,14 +2,15 @@
 using Discord.Audio;
 using Discord.Commands;
 using System.Threading.Tasks;
+using WokBot.Interfaces;
 
 namespace WokBot.Services.Commands
 {
-    public class Youtube : ModuleBase<SocketCommandContext>
+    public class YoutubeCommand : ModuleBase<SocketCommandContext>
     {
-        private readonly VideoDownloadService _videoDownloadService;
-        private readonly FfmpegService _ffmpegService;
-        public Youtube(VideoDownloadService videoDownloaderService, FfmpegService ffmpegService)
+        private readonly IVideoDownloadService _videoDownloadService;
+        private readonly IFfmpegService _ffmpegService;
+        public YoutubeCommand(IVideoDownloadService videoDownloaderService, IFfmpegService ffmpegService)
         {
             _videoDownloadService = videoDownloaderService;
             _ffmpegService = ffmpegService;

@@ -5,17 +5,18 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using WokBot.Interfaces;
 using WokBot.Models;
 
 namespace WokBot.Services.Commands
 {
-    public class UrbanDictionary : ModuleBase<SocketCommandContext>
+    public class UrbanDictionaryCommand : ModuleBase<SocketCommandContext>
     {
         private const string UrbanDictionaryApiUrl = "http://api.urbandictionary.com/v0/define?term=";
         private const string Definition = "Definition";
         private const string Example = "Example";
 
-        public UrbanDictionary(){}
+        public UrbanDictionaryCommand(){}
 
         [Command("urban")]
         public async Task SayAsync(string searchTerm)

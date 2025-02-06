@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
+using WokBot.Interfaces;
 
 namespace WokBot.Services
 {
-    public class FfmpegService
+    public class FfmpegService : IFfmpegService
     {
         public Process CreateFfmpegInstance(string path)
             => Process.Start(new ProcessStartInfo

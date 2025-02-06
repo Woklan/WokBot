@@ -1,9 +1,10 @@
 ﻿using Discord.Commands;
 using System.Threading.Tasks;
+using WokBot.Interfaces;
 
 namespace WokBot.Services.Commands
 {
-    public class PingPong : ModuleBase<SocketCommandContext>
+    public class PingPongCommand : ModuleBase<SocketCommandContext>
     {
         private const string Pong = "Pong!";
 
