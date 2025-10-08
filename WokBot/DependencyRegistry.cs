@@ -32,6 +32,7 @@ namespace WokBot
         private static IServiceCollection AddServiceSingletons(IServiceCollection serviceCollection)
            => serviceCollection
            .AddSingleton<IVideoDownloadService, VideoDownloadService>()
-           .AddSingleton<IFfmpegService, FfmpegService>();
+           .AddSingleton<IFfmpegService, FfmpegService>()
+           .AddSingleton<ICommandServiceWrapper, CommandServiceWrapper>();
     }
 }
