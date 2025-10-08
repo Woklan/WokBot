@@ -11,7 +11,7 @@ namespace WokBot.Classes
     public class CommandHandler : ICommandHandler
     {
         private readonly DiscordSocketClient _client;
-        private readonly CommandService _commandService;
+        private readonly ICommandServiceWrapper _commandService;
         private readonly IServiceProvider _serviceProvider;
 
         private readonly List<Type> _commands = new()
@@ -25,7 +25,7 @@ namespace WokBot.Classes
         
         private int _argPos = 0;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commandService, IServiceProvider serviceProvider)
+        public CommandHandler(DiscordSocketClient client, ICommandServiceWrapper commandService, IServiceProvider serviceProvider)
         {
             _commandService = commandService;
             _client = client;
@@ -59,7 +59,6 @@ namespace WokBot.Classes
             }
 
             var context = new SocketCommandContext(_client, message);
-
             await _commandService.ExecuteAsync(context, _argPos, _serviceProvider);
         }
 

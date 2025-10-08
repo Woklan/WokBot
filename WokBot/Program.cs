@@ -11,8 +11,7 @@ using Serilog;
 using WokBot.Models.Config;
 using System.Text.Json;
 using System.IO;
-using WokBot.Services.Commands;
-using WokBot.Services;
+using WokBot.Interfaces;
 
 namespace WokBot
 {
@@ -21,17 +20,12 @@ namespace WokBot
         private DiscordSocketClient _client;
         private IServiceProvider _serviceProvider;
 
-        private CommandService _commandService;
         private CommandHandler _commandHandler;
 
         private const string Gaming = "Gaming";
         private const string MinemanlukeTwitchLink = "https://twitch.tv/minemanluke";
         private const string Docker = "docker";
         private const string DefaultConfigLocation = "config.json";
-
-        
-        
-
         public static void Main(string[] args) => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
@@ -41,7 +35,7 @@ namespace WokBot
 
             SetupLogging();
 
-            SetupCommands();
+            await SetupCommandsAsync(_serviceProvider);
 
             var config = await GetConfigAsync();
 
@@ -87,12 +81,12 @@ namespace WokBot
             _client.Log += LogAsync;
         }
 
-        private void SetupCommands()
+        private async Task SetupCommandsAsync(IServiceProvider  serviceProvider)
         {
-            _commandService = new CommandService();
+            var commandService = _serviceProvider.GetRequiredService<ICommandServiceWrapper>();
 
-            _commandHandler = new CommandHandler(_client, _commandService, _serviceProvider);
-            _commandHandler.InstallCommandsAsync();
+            _commandHandler = new CommandHandler(_client, commandService, _serviceProvider);
+            await _commandHandler.InstallCommandsAsync();
         }
 
         private async Task LogAsync(LogMessage message)
