@@ -1,17 +1,15 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Discord;
-using Discord.Commands;
+﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using WokBot.Classes;
-using Serilog.Events;
-using Serilog;
-using WokBot.Models.Config;
-using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using WokBot.Classes;
 using WokBot.Interfaces;
+using WokBot.Models.Config;
 
 namespace WokBot
 {
@@ -72,13 +70,7 @@ namespace WokBot
 
         private void SetupLogging()
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .CreateLogger();
-
-            _client.Log += LogAsync;
+            _client.Log += Log;
         }
 
         private async Task SetupCommandsAsync(IServiceProvider  serviceProvider)
@@ -89,22 +81,26 @@ namespace WokBot
             await _commandHandler.InstallCommandsAsync();
         }
 
-        private async Task LogAsync(LogMessage message)
+        private Task Log(LogMessage message)
         {
+            var logger = _serviceProvider.GetRequiredService<ILogger<Program>>();
+
+            var messageToBeLogged = $"{message.Message}";
+
             var severity = message.Severity switch
             {
-                LogSeverity.Critical => LogEventLevel.Fatal,
-                LogSeverity.Error => LogEventLevel.Error,
-                LogSeverity.Warning => LogEventLevel.Warning,
-                LogSeverity.Info => LogEventLevel.Information,
-                LogSeverity.Verbose => LogEventLevel.Verbose,
-                LogSeverity.Debug => LogEventLevel.Debug,
-                _ => LogEventLevel.Information
+                LogSeverity.Critical => LogLevel.Error,
+                LogSeverity.Error => LogLevel.Error,
+                LogSeverity.Warning => LogLevel.Warning,
+                LogSeverity.Info => LogLevel.Information,
+                LogSeverity.Verbose => LogLevel.Debug,
+                LogSeverity.Debug => LogLevel.Debug,
+                _ => LogLevel.Information
             };
-            
-            Log.Write(severity, message.Exception, "[{Source}] {Message}", message.Source, message.Message);
-            
-            await Task.CompletedTask;
+
+            logger.Log(severity, messageToBeLogged);
+
+            return Task.CompletedTask;
         }
     }
 }
