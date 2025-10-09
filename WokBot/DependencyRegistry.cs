@@ -4,6 +4,7 @@ using System;
 using WokBot.Services;
 using Discord;
 using WokBot.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace WokBot
 {
@@ -22,9 +23,16 @@ namespace WokBot
 
             var serviceCollection = new ServiceCollection()
                 .AddSingleton(config)
-                .AddSingleton<DiscordSocketClient>();
+                .AddSingleton<DiscordSocketClient>()
+                .AddHttpClient()
+                .AddLogging(builder =>
+                {
+                    builder.AddSimpleConsole(options => {
+                        options.SingleLine = true;
+                    });
 
-            serviceCollection.AddHttpClient();
+                    builder.AddDebug();
+                });
 
             AddServiceSingletons(serviceCollection);
 
