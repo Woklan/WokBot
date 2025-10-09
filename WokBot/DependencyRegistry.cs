@@ -24,6 +24,8 @@ namespace WokBot
                 .AddSingleton(config)
                 .AddSingleton<DiscordSocketClient>();
 
+            serviceCollection.AddHttpClient();
+
             AddServiceSingletons(serviceCollection);
 
             return serviceCollection.BuildServiceProvider();
