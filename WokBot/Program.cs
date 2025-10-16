@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -76,8 +77,9 @@ namespace WokBot
         private async Task SetupCommandsAsync(IServiceProvider  serviceProvider)
         {
             var commandService = _serviceProvider.GetRequiredService<ICommandServiceWrapper>();
+            var configuration = _serviceProvider.GetRequiredService<IOptions<CommandHandlerConfiguration>>();
 
-            _commandHandler = new CommandHandler(_client, commandService, _serviceProvider);
+            _commandHandler = new CommandHandler(_client, commandService, _serviceProvider, configuration);
             await _commandHandler.InstallCommandsAsync();
         }
 
