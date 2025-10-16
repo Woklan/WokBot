@@ -1,30 +1,30 @@
 ﻿using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using WokBot.Models;
+using WokBot.Models.Config;
 
 namespace WokBot.Services.Commands
 {
     public class UrbanDictionaryCommand : ModuleBase<SocketCommandContext>
     {
-        private const string UrbanDictionaryApiUrl = "http://api.urbandictionary.com/v0/define?term=";
-        private const string Definition = "Definition";
-        private const string Example = "Example";
-
         private readonly IHttpClientFactory _httpClientFactory;
+        private UrbanDictionaryCommandConfiguration _configuration;
 
-        public UrbanDictionaryCommand(IHttpClientFactory httpClientFactory) 
+        public UrbanDictionaryCommand(IHttpClientFactory httpClientFactory, IOptions<UrbanDictionaryCommandConfiguration> configuration) 
         {
             _httpClientFactory = httpClientFactory;
+            _configuration = configuration.Value;
         }
 
         [Command("urban")]
         public async Task SayAsync(string searchTerm)
         {
-            var searchUrl = UrbanDictionaryApiUrl + searchTerm;
+            var searchUrl = $"{_configuration.UrbanDictionaryApiUrl}{searchTerm}";
 
             using var client = _httpClientFactory.CreateClient();
 
@@ -53,8 +53,8 @@ namespace WokBot.Services.Commands
                 Title = searchTerm,
             };
 
-            embed.AddField(Definition, definition.definition);
-            embed.AddField(Example, definition.example);
+            embed.AddField(_configuration.DefinitionTitle, definition.definition);
+            embed.AddField(_configuration.ExampleTitle, definition.example);
             embed.WithUrl(definition.permalink);
             embed.WithColor(Color.Blue);
             embed.WithFooter(footer => footer.Text = "Submitted by: " + definition.author);

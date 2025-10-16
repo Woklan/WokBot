@@ -1,9 +1,11 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WokBot.Interfaces;
+using WokBot.Models.Config;
 using WokBot.Services.Commands;
 
 namespace WokBot.Classes
@@ -13,6 +15,7 @@ namespace WokBot.Classes
         private readonly DiscordSocketClient _client;
         private readonly ICommandServiceWrapper _commandService;
         private readonly IServiceProvider _serviceProvider;
+        private readonly CommandHandlerConfiguration _configuration;
 
         private readonly List<Type> _commands = new()
         {
@@ -20,16 +23,15 @@ namespace WokBot.Classes
             typeof(UrbanDictionaryCommand),
             typeof(YoutubeCommand)
         };
-
-        private const char _ampersand = '&';
         
         private int _argPos = 0;
 
-        public CommandHandler(DiscordSocketClient client, ICommandServiceWrapper commandService, IServiceProvider serviceProvider)
+        public CommandHandler(DiscordSocketClient client, ICommandServiceWrapper commandService, IServiceProvider serviceProvider, IOptions<CommandHandlerConfiguration> configuration)
         {
             _commandService = commandService;
             _client = client;
             _serviceProvider = serviceProvider;
+            _configuration = configuration.Value;
         }
 
         public async Task InstallCommandsAsync()
@@ -52,7 +54,8 @@ namespace WokBot.Classes
                 return;
             }
 
-            var hasAmpersand = message.HasCharPrefix(_ampersand, ref _argPos);
+            var commandToken = _configuration.CommandToken[0];
+            var hasAmpersand = message.HasCharPrefix(commandToken, ref _argPos);
             if (!hasAmpersand)
             {
                 return;

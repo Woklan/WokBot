@@ -1,16 +1,22 @@
 ﻿using Discord.Commands;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
-using WokBot.Interfaces;
+using WokBot.Models.Config;
 
 namespace WokBot.Services.Commands
 {
     public class PingPongCommand : ModuleBase<SocketCommandContext>
     {
-        private const string Pong = "Pong!";
+        private readonly PingPongCommandConfiguration _configuration;
+
+        public PingPongCommand(IOptions<PingPongCommandConfiguration> configuration)
+        {
+            _configuration = configuration.Value;
+        }
 
         [Command("ping")]
         [Summary("Pongs the ping")]
         public async Task SayAsync()
-            => await Context.Channel.SendMessageAsync(Pong);
+            => await Context.Channel.SendMessageAsync(_configuration.OutputText);
     }
 }
