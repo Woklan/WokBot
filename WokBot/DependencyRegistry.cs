@@ -48,7 +48,8 @@ namespace WokBot
            => serviceCollection
            .AddSingleton<IVideoDownloadService, VideoDownloadService>()
            .AddSingleton<IFfmpegService, FfmpegService>()
-           .AddSingleton<ICommandServiceWrapper, CommandServiceWrapper>();
+           .AddSingleton<ICommandServiceWrapper, CommandServiceWrapper>()
+           .AddSingleton<IBot, Bot>();
 
         private static IServiceCollection AddConfiguration(IServiceCollection serviceCollection)
         {
@@ -62,7 +63,8 @@ namespace WokBot
                 .Configure<PingPongCommandConfiguration>(configuration.GetSection(nameof(PingPongCommandConfiguration)))
                 .Configure<UrbanDictionaryCommandConfiguration>(configuration.GetSection(nameof(UrbanDictionaryCommandConfiguration)))
                 .Configure<VideoDownloadServiceConfiguration>(configuration.GetSection(nameof(VideoDownloadServiceConfiguration)))
-                .Configure<CommandHandlerConfiguration>(configuration.GetSection(nameof(CommandHandlerConfiguration)));
+                .Configure<CommandHandlerConfiguration>(configuration.GetSection(nameof(CommandHandlerConfiguration)))
+                .Configure<BotConfiguration>(configuration.GetSection(nameof(BotConfiguration)));
         }
     }
 }
