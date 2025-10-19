@@ -1,23 +1,39 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+using Microsoft.Extensions.Hosting;
+using NetCord.Gateway;
+using NetCord.Hosting.Gateway;
+using NetCord.Hosting.Services;
+using NetCord.Hosting.Services.Commands;
 using System.Threading.Tasks;
 using WokBot.Interfaces;
+using WokBot.Models.Config;
+using WokBot.Services;
 
 namespace WokBot
 {
     public class Program
     {
-        private IServiceProvider _serviceProvider;
-
         public static void Main(string[] args) => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
         {
-            _serviceProvider = DependencyRegistry.RegisterDependencies();
+            var builder = Host.CreateApplicationBuilder(args);
 
-            var bot = _serviceProvider.GetRequiredService<IBot>();
+            builder.Services
+                .AddDiscordGateway(options => options.Intents = GatewayIntents.All )
+                .AddCommands()
+                .AddHttpClient()
+                .AddOptions()
+                .AddSingleton<IFfmpegService, FfmpegService>()
+                .AddSingleton<IVideoDownloadService, VideoDownloadService>()
+                .Configure<UrbanDictionaryCommandConfiguration>(builder.Configuration.GetSection(nameof(UrbanDictionaryCommandConfiguration)))
+                .Configure<VideoDownloadServiceConfiguration>(builder.Configuration.GetSection(nameof(VideoDownloadServiceConfiguration)));
 
-            await bot.StartBotAsync();
+            var host = builder.Build();
+
+            host.AddModules(typeof(Program).Assembly);
+
+            await host.RunAsync();
         }
     }
 }

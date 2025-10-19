@@ -1,22 +1,17 @@
-﻿using Discord.Commands;
-using Microsoft.Extensions.Options;
-using System.Threading.Tasks;
-using WokBot.Models.Config;
+﻿using NetCord.Services.Commands;
+using System;
 
 namespace WokBot.Services.Commands
 {
-    public class PingPongCommand : ModuleBase<SocketCommandContext>
+    public class PingPongCommand : CommandModule<CommandContext>
     {
-        private readonly PingPongCommandConfiguration _configuration;
-
-        public PingPongCommand(IOptions<PingPongCommandConfiguration> configuration)
+        public PingPongCommand()
         {
-            _configuration = configuration.Value;
+
         }
 
         [Command("ping")]
-        [Summary("Pongs the ping")]
-        public async Task SayAsync()
-            => await Context.Channel.SendMessageAsync(_configuration.OutputText);
+        public string Ping()
+            => $"Pong! {Math.Round(Context.Client.Latency.TotalMilliseconds)} ms";
     }
 }
