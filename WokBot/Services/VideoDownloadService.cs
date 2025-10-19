@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using WokBot.Interfaces;
@@ -22,10 +23,11 @@ namespace WokBot.Services
             {
                 YoutubeDLPath = _configuration.YoutubeDlBinaryPath,
                 FFmpegPath = _configuration.FfmpegBinaryPath,
+                RestrictFilenames = true,
+                OutputFileTemplate = $"{Guid.NewGuid()}"         
             };
 
-            var result = await downloader.RunAudioDownload(url);
-
+            var result = await downloader.RunAudioDownload(url, YoutubeDLSharp.Options.AudioConversionFormat.Opus);
             return result;
         }
 

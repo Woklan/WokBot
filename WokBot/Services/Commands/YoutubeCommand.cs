@@ -1,12 +1,14 @@
-﻿using Discord;
-using Discord.Audio;
-using Discord.Commands;
+﻿using NetCord.Gateway;
+using NetCord.Gateway.Voice;
+using NetCord.Logging;
+using NetCord.Services.Commands;
+using System;
 using System.Threading.Tasks;
 using WokBot.Interfaces;
 
 namespace WokBot.Services.Commands
 {
-    public class YoutubeCommand : ModuleBase<SocketCommandContext>
+    public class YoutubeCommand : CommandModule<CommandContext>
     {
         private readonly IVideoDownloadService _videoDownloadService;
         private readonly IFfmpegService _ffmpegService;
@@ -16,48 +18,51 @@ namespace WokBot.Services.Commands
             _ffmpegService = ffmpegService;
         }
 
-        [Command("youtube", RunMode = RunMode.Async)]
-        public async Task SayAsync(string searchTerm, IVoiceChannel channel = null)
+        [Command("youtube")]
+        public async Task SayAsync(string searchTerm)
         {
-            channel ??= (Context.User as IGuildUser)?.VoiceChannel;
-            if (channel is null)
+            if(!Uri.IsWellFormedUriString(searchTerm, UriKind.Absolute))
             {
-                await Context.Channel.SendMessageAsync("User must be in a voice channel!");
+                await Context.Channel.SendMessageAsync("Invalid Url!");
                 return;
             }
 
-            var downloadResult = await _videoDownloadService.DownloadVideosAudio(searchTerm);
-            if (!downloadResult.Success)
+            var guild = Context.Guild;
+            if(!guild.VoiceStates.TryGetValue(Context.User.Id, out var voiceState))
             {
-                await Context.Channel.SendMessageAsync("Something went wrong!");
+                await Context.Channel.SendMessageAsync("You are not connected to any voice channel!");
                 return;
             }
 
-            await PlayAudioInChannel(channel, downloadResult.Data);
+            var client = Context.Client;
 
-            _videoDownloadService.CleanVideoDownload(downloadResult.Data);
-        }
+            var video = await _videoDownloadService.DownloadVideosAudio(searchTerm);
 
-        public async Task PlayAudioInChannel(IVoiceChannel channel, string videoOutputDirectory)
-        {
-            var audioClient = await channel.ConnectAsync();
+            using var voiceClient = await client.JoinVoiceChannelAsync(
+                guild.Id,
+                voiceState.ChannelId.GetValueOrDefault(),
+                new VoiceClientConfiguration
+                {
+                    Logger = new ConsoleLogger()
+                });
 
-            using var ffmpegInstance = _ffmpegService.CreateFfmpegInstance(videoOutputDirectory);
-            using var output = ffmpegInstance.StandardOutput.BaseStream;
-            using var discord = audioClient.CreatePCMStream(AudioApplication.Mixed);
+            using var outputStream = voiceClient.CreateOutputStream();
 
-            try
+            using var opusEncodedStream = new OpusEncodeStream(outputStream, PcmFormat.Short, VoiceChannels.Stereo, OpusApplication.Audio);
+
+            await voiceClient.StartAsync();
+
+            await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
+
+            using (var ffmpeg = _ffmpegService.CreateFfmpegInstance(video.Data))
             {
-                await output.CopyToAsync(discord);
-            }
-            finally
-            {
-                await discord.FlushAsync();
+                await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodedStream);
             }
 
-            await channel.DisconnectAsync();
+            await opusEncodedStream.FlushAsync();
+            await voiceClient.CloseAsync();
 
-            _ffmpegService.CloseFfmpegInstance(ffmpegInstance);
+            await client.UpdateVoiceStateAsync(new VoiceStateProperties(guild.Id, null));
         }
     }
 }

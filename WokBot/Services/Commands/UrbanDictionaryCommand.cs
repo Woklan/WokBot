@@ -1,6 +1,7 @@
-﻿using Discord;
-using Discord.Commands;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using NetCord;
+using NetCord.Rest;
+using NetCord.Services.Commands;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -10,7 +11,7 @@ using WokBot.Models.Config;
 
 namespace WokBot.Services.Commands
 {
-    public class UrbanDictionaryCommand : ModuleBase<SocketCommandContext>
+    public class UrbanDictionaryCommand : CommandModule<CommandContext>
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private UrbanDictionaryCommandConfiguration _configuration;
@@ -22,13 +23,13 @@ namespace WokBot.Services.Commands
         }
 
         [Command("urban")]
-        public async Task SayAsync(string searchTerm)
+        public async Task<MessageProperties> SayAsync(string searchTerm)
         {
             var searchUrl = $"{_configuration.UrbanDictionaryApiUrl}{searchTerm}";
 
-            using var client = _httpClientFactory.CreateClient();
+            using var httpClient = _httpClientFactory.CreateClient();
 
-            var result = await client.GetFromJsonAsync<Root>(searchUrl);
+            var result = await httpClient.GetFromJsonAsync<Root>(searchUrl);
 
             if (!result?.list.Any() ?? false)
             {
@@ -37,29 +38,44 @@ namespace WokBot.Services.Commands
 
             if (!result.list.Any())
             {
-                return;
+                return null;
             }
 
             var definition = result.list.First();
 
             var embed = GenerateEmbed(searchTerm, definition);
-            await ReplyAsync(embed: embed);
+
+            var message = new MessageProperties();
+            message.AddEmbeds([embed]);
+
+            return message;
         }
 
-        private Embed GenerateEmbed(string searchTerm, List definition)
+        private EmbedProperties GenerateEmbed(string searchTerm, List definition)
         {
-            var embed = new EmbedBuilder
-            {
-                Title = searchTerm,
-            };
+            var color = new Color(byte.MinValue, byte.MinValue, byte.MaxValue);
+            var embed = new EmbedProperties()
+                .WithTitle(searchTerm)
+                .AddFields([
+                    new EmbedFieldProperties
+                    {
+                        Name = _configuration.DefinitionTitle,
+                        Value = definition.definition
+                    },
+                    new EmbedFieldProperties
+                    {
+                        Name = _configuration.ExampleTitle,
+                        Value = definition.definition
+                    }
+                    ])
+                .WithUrl(definition.permalink)
+                .WithColor(color)
+                .WithFooter(new EmbedFooterProperties
+                {
+                    Text = "Submitted by: " + definition.author
+                });
 
-            embed.AddField(_configuration.DefinitionTitle, definition.definition);
-            embed.AddField(_configuration.ExampleTitle, definition.example);
-            embed.WithUrl(definition.permalink);
-            embed.WithColor(Color.Blue);
-            embed.WithFooter(footer => footer.Text = "Submitted by: " + definition.author);
-
-            return embed.Build();
+            return embed;
         }
     }
 }

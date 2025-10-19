@@ -367,3 +367,4 @@ FodyWeavers.xsd
 /WokBot/settings.env
 /WokBot/config.json
 /WokBot/yt-dlp.exe
+/WokBot/appsettings.json
