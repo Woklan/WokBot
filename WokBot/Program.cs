@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WokBot.Interfaces;
 using WokBot.Models.Config;
 using WokBot.Services;
+using WokBot.Services.VideoDownloadService;
 
 namespace WokBot
 {

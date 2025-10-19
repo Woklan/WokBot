@@ -36,7 +36,7 @@ namespace WokBot.Services.Commands
 
             var client = Context.Client;
 
-            var video = await _videoDownloadService.DownloadVideosAudio(searchTerm);
+            using var video = await _videoDownloadService.DownloadVideosAudioAsync(searchTerm);
 
             using var voiceClient = await client.JoinVoiceChannelAsync(
                 guild.Id,
@@ -54,7 +54,7 @@ namespace WokBot.Services.Commands
 
             await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
-            using (var ffmpeg = _ffmpegService.CreateFfmpegInstance(video.Data))
+            using (var ffmpeg = _ffmpegService.CreateFfmpegInstance(video.FilePath))
             {
                 await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodedStream);
             }
