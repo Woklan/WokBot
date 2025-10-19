@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
-using YoutubeDLSharp;
+using WokBot.Services.VideoDownloadService;
 
 namespace WokBot.Interfaces
 {
     public interface IVideoDownloadService
     {
-        Task<RunResult<string>> DownloadVideosAudio(string url);
-        void CleanVideoDownload(string fileDirectory);
+        Task<VideoDownloadWrapper> DownloadVideosAudioAsync(string url);
     }
 }
