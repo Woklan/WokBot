@@ -7,6 +7,9 @@
 	<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="EFCore.AutomaticMigrations" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.2" />
@@ -24,9 +27,7 @@
     <PackageReference Include="YoutubeDLSharp" Version="1.1.2" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Database\" />
     <Folder Include="Resources\" />
-    <Folder Include="Services\Commands\" />
     <Folder Include="Services\Interfaces\" />
   </ItemGroup>
   <ProjectExtensions>
