@@ -5,6 +5,7 @@ using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.Commands;
 using System.Threading.Tasks;
+using WokBot.Database;
 using WokBot.Interfaces;
 using WokBot.Models.Config;
 using WokBot.Services;
@@ -27,8 +28,11 @@ namespace WokBot
                 .AddOptions()
                 .AddSingleton<IFfmpegService, FfmpegService>()
                 .AddSingleton<IVideoDownloadService, VideoDownloadService>()
+                .AddSingleton<IDatabaseContextFactory, DatabaseContextFactory>()
                 .Configure<UrbanDictionaryCommandConfiguration>(builder.Configuration.GetSection(nameof(UrbanDictionaryCommandConfiguration)))
                 .Configure<VideoDownloadServiceConfiguration>(builder.Configuration.GetSection(nameof(VideoDownloadServiceConfiguration)));
+
+            builder.Services.AddSingleton<DatabaseContext>();
 
             var host = builder.Build();
 
