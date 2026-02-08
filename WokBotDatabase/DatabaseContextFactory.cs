@@ -1,8 +1,7 @@
 ﻿using EFCore.AutomaticMigrations;
 using Microsoft.EntityFrameworkCore;
-using WokBot.Interfaces;
 
-namespace WokBot.Database
+namespace WokBotDatabase
 {
     public class DatabaseContextFactory : IDatabaseContextFactory
     {

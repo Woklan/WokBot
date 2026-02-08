@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace WokBot.Models
+﻿namespace WokBotModels
 {
     public class List
     {

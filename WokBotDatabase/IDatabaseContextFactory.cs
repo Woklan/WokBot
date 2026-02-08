@@ -1,6 +1,4 @@
-﻿using WokBot.Database;
-
-namespace WokBot.Interfaces
+﻿namespace WokBotDatabase
 {
     public interface IDatabaseContextFactory
     {

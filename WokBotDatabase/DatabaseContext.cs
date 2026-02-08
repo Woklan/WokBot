@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WokBot.Models.Database;
+using WokBotModels.Database;
 
-namespace WokBot.Database
+namespace WokBotDatabase
 {
     public class DatabaseContext : DbContext
     {

@@ -39,6 +39,10 @@
     <None Remove="..\.dockerignore" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Models\WokBotModels.csproj" />
+	<ProjectReference Include="..\WokBotDatabase\WokBotDatabase.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

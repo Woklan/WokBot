@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WokBot.Models.Database
+namespace WokBotModels.Database
 {
     public class F1ChannelUpdateSubscription
     {

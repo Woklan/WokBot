@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace WokBot.Models.OpenF1Api
+﻿namespace WokBotModels.OpenF1Api
 {
     public class Session
     {
