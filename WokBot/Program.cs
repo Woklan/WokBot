@@ -6,9 +6,10 @@ using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.Commands;
 using System.Threading.Tasks;
 using WokBot.Interfaces;
-using WokBot.Models.Config;
 using WokBot.Services;
 using WokBot.Services.VideoDownloadService;
+using WokBotModels.Config;
+using WokBotDatabase;
 
 namespace WokBot
 {
@@ -25,6 +26,7 @@ namespace WokBot
                 .AddCommands()
                 .AddHttpClient()
                 .AddOptions()
+                .AddDatabaseServices()
                 .AddSingleton<IFfmpegService, FfmpegService>()
                 .AddSingleton<IVideoDownloadService, VideoDownloadService>()
                 .Configure<UrbanDictionaryCommandConfiguration>(builder.Configuration.GetSection(nameof(UrbanDictionaryCommandConfiguration)))

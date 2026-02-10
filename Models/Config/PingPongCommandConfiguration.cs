@@ -1,4 +1,4 @@
-﻿namespace WokBot.Models.Config
+﻿namespace WokBotModels.Config
 {
     public class PingPongCommandConfiguration
     {
