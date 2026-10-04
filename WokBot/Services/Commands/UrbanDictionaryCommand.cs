@@ -25,23 +25,19 @@ namespace WokBot.Services.Commands
         [Command("urban")]
         public async Task<MessageProperties> SayAsync(string searchTerm)
         {
-            var searchUrl = $"{_configuration.UrbanDictionaryApiUrl}{searchTerm}";
+            var searchUrl = $"{_configuration.ApiUrl}{searchTerm}";
 
             using var httpClient = _httpClientFactory.CreateClient();
 
-            var result = await httpClient.GetFromJsonAsync<Root>(searchUrl);
+            var result = await httpClient.GetFromJsonAsync<UrbanDictionaryResponse>(searchUrl);
 
-            if (!result?.list.Any() ?? false)
+            if (!result?.UrbanDictionaryDefinitions.Any() ?? false)
             {
                 await Context.Channel.SendMessageAsync($"I found no definition for the term: {searchTerm}.");
-            }
-
-            if (!result.list.Any())
-            {
                 return null;
             }
 
-            var definition = result.list.First();
+            var definition = result.UrbanDictionaryDefinitions.First();
 
             var embed = GenerateEmbed(searchTerm, definition);
 
@@ -51,7 +47,7 @@ namespace WokBot.Services.Commands
             return message;
         }
 
-        private EmbedProperties GenerateEmbed(string searchTerm, List definition)
+        private EmbedProperties GenerateEmbed(string searchTerm, UrbanDictionaryDefinition definition)
         {
             var color = new Color(byte.MinValue, byte.MinValue, byte.MaxValue);
             var embed = new EmbedProperties()
@@ -59,20 +55,20 @@ namespace WokBot.Services.Commands
                 .AddFields([
                     new EmbedFieldProperties
                     {
-                        Name = _configuration.DefinitionTitle,
-                        Value = definition.definition
+                        Name = "Definition",
+                        Value = definition.Definition
                     },
                     new EmbedFieldProperties
                     {
-                        Name = _configuration.ExampleTitle,
-                        Value = definition.definition
+                        Name = "Example",
+                        Value = definition.Example
                     }
                     ])
-                .WithUrl(definition.permalink)
+                .WithUrl(definition.Permalink)
                 .WithColor(color)
                 .WithFooter(new EmbedFooterProperties
                 {
-                    Text = "Submitted by: " + definition.author
+                    Text = "Submitted by: " + definition.Author
                 });
 
             return embed;
