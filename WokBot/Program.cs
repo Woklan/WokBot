@@ -5,10 +5,7 @@ using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.Commands;
 using System.Threading.Tasks;
-using WokBot.Interfaces;
 using WokBot.Models.Config;
-using WokBot.Services;
-using WokBot.Services.VideoDownloadService;
 
 namespace WokBot
 {
@@ -21,14 +18,11 @@ namespace WokBot
             var builder = Host.CreateApplicationBuilder(args);
 
             builder.Services
-                .AddDiscordGateway(options => options.Intents = GatewayIntents.All )
+                .AddDiscordGateway(options => options.Intents = GatewayIntents.All)
                 .AddCommands()
                 .AddHttpClient()
                 .AddOptions()
-                .AddSingleton<IFfmpegService, FfmpegService>()
-                .AddSingleton<IVideoDownloadService, VideoDownloadService>()
-                .Configure<UrbanDictionaryCommandConfiguration>(builder.Configuration.GetSection(nameof(UrbanDictionaryCommandConfiguration)))
-                .Configure<VideoDownloadServiceConfiguration>(builder.Configuration.GetSection(nameof(VideoDownloadServiceConfiguration)));
+                .Configure<UrbanDictionaryCommandConfiguration>(builder.Configuration.GetSection(nameof(UrbanDictionaryCommandConfiguration)));
 
             var host = builder.Build();
 

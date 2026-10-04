@@ -1,24 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WokBot.Models
 {
-    public class List
+    public class UrbanDictionaryDefinition
     {
-        public string definition { get; set; }
-        public string permalink { get; set; }
-        public int thumbs_up { get; set; }
-        public string author { get; set; }
-        public string word { get; set; }
-        public int defid { get; set; }
-        public string current_vote { get; set; }
-        public DateTime written_on { get; set; }
-        public string example { get; set; }
-        public int thumbs_down { get; set; }
+        [JsonPropertyName("definition")]
+        public string Definition { get; set; }
+        
+        [JsonPropertyName("permalink")]
+        public string Permalink  { get; set; }
+        
+        [JsonPropertyName("thumbs_up")]
+        public int ThumbsUp { get; set; }
+        
+        [JsonPropertyName("author")]
+        public string Author { get; set; }
+        
+        [JsonPropertyName("word")]
+        public string Word { get; set; }
+        
+        [JsonPropertyName("defid")]
+        public int DefId { get; set; }
+        
+        [JsonPropertyName("current_vote")]
+        public string CurrentVote { get; set; }
+        
+        [JsonPropertyName("written_on")]
+        public DateTime WrittenOn { get; set; }
+        
+        [JsonPropertyName("example")]
+        public string Example { get; set; }
+        
+        [JsonPropertyName("thumbs_down")]
+        public int ThumbsDown { get; set; }
     }
 
-    public class Root
+    public class UrbanDictionaryResponse
     {
-        public List<List> list { get; set; }
+        [JsonPropertyName("list")]
+        public List<UrbanDictionaryDefinition> UrbanDictionaryDefinitions { get; set; }
     }
 }

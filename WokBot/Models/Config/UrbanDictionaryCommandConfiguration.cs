@@ -2,8 +2,6 @@
 {
     public class UrbanDictionaryCommandConfiguration
     {
-        public string UrbanDictionaryApiUrl { get; set; }
-        public string DefinitionTitle { get; set; }
-        public string ExampleTitle { get; set; }
+        public string ApiUrl { get; set; }
     }
 }

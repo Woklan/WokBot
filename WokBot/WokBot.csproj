@@ -20,11 +20,10 @@
     <PackageReference Include="NetCord.Hosting.AspNetCore" Version="1.0.0-alpha.435" />
     <PackageReference Include="NetCord.Hosting.Services" Version="1.0.0-alpha.435" />
     <PackageReference Include="NetCord.Services" Version="1.0.0-alpha.435" />
-    <PackageReference Include="xFFmpeg.NET" Version="7.2.0" />
-    <PackageReference Include="YoutubeDLSharp" Version="1.1.2" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />
+    <Folder Include="Interfaces\" />
     <Folder Include="Resources\" />
     <Folder Include="Services\Commands\" />
     <Folder Include="Services\Interfaces\" />
@@ -42,18 +41,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ffmpeg.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="libsodium.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="opus.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="yt-dlp.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
